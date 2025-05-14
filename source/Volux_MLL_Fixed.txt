@@ -1,0 +1,1983 @@
+--[[
+    VTriP UI Library - Neumorphic Edition
+    Created by VTriP Official
+    Enhanced by v0.dev
+    
+    A customizable UI library for Roblox exploits with Neumorphic design
+    Mobile & PC Compatible - Enhanced Android Support
+    
+    Version 5.0 - Neumorphic Edition
+]]
+
+local VTripLibrary = {}
+local UIs = {}
+
+-- Services
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TextService = game:GetService("TextService")
+local LocalPlayer = Players.LocalPlayer
+local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+
+-- Default settings
+local defaultSettings = {
+    title = "VTriP Menu",
+    subtitle = "Neumorphic Edition",
+    theme = {
+        background = Color3.fromRGB(235, 235, 240),
+        foreground = Color3.fromRGB(225, 225, 230),
+        accent = Color3.fromRGB(130, 130, 240),
+        text = Color3.fromRGB(70, 70, 90),
+        subtext = Color3.fromRGB(120, 120, 140),
+        success = Color3.fromRGB(130, 200, 130),
+        warning = Color3.fromRGB(230, 180, 80),
+        error = Color3.fromRGB(230, 100, 100),
+        shadow = {
+            light = Color3.fromRGB(255, 255, 255),
+            dark = Color3.fromRGB(190, 190, 210)
+        }
+    },
+    size = UDim2.new(0, 450, 0, 380),
+    position = UDim2.new(0.5, -225, 0.5, -190),
+    toggleKey = Enum.KeyCode.M,
+    roundness = 16,
+    animations = true,
+    defaultIcon = "rbxassetid://7734110588" -- Default icon if none provided
+}
+
+-- Utility functions
+local function lerp(a, b, t)
+    return a + (b - a) * t
+end
+
+-- Create neumorphic effect (soft shadow)
+local function createNeumorphicEffect(parent, isPressed, roundness, theme)
+    -- Remove existing effects if any
+    for _, child in pairs(parent:GetChildren()) do
+        if child.Name == "NeumorphicEffect" then
+            child:Destroy()
+        end
+    end
+    
+    -- Create container for the effect
+    local effectContainer = Instance.new("Frame")
+    effectContainer.Name = "NeumorphicEffect"
+    effectContainer.Size = UDim2.new(1, 0, 1, 0)
+    effectContainer.BackgroundTransparency = 1
+    effectContainer.BorderSizePixel = 0
+    effectContainer.ZIndex = parent.ZIndex
+    effectContainer.Parent = parent
+    
+    -- Create light shadow (top-left)
+    local lightShadow = Instance.new("Frame")
+    lightShadow.Name = "LightShadow"
+    lightShadow.Size = UDim2.new(1, 0, 1, 0)
+    lightShadow.BackgroundTransparency = 1
+    lightShadow.BorderSizePixel = 0
+    lightShadow.ZIndex = parent.ZIndex
+    lightShadow.Parent = effectContainer
+    
+    local lightStroke = Instance.new("UIStroke")
+    lightStroke.Color = theme.shadow.light
+    lightStroke.Transparency = isPressed and 0.7 or 0.3
+    lightStroke.Thickness = 2
+    lightStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    lightStroke.Parent = lightShadow
+    
+    local lightCorner = Instance.new("UICorner")
+    lightCorner.CornerRadius = UDim.new(0, roundness)
+    lightCorner.Parent = lightShadow
+    
+    -- Create dark shadow (bottom-right)
+    local darkShadow = Instance.new("Frame")
+    darkShadow.Name = "DarkShadow"
+    darkShadow.Size = UDim2.new(1, 0, 1, 0)
+    darkShadow.BackgroundTransparency = 1
+    darkShadow.BorderSizePixel = 0
+    darkShadow.ZIndex = parent.ZIndex
+    darkShadow.Parent = effectContainer
+    
+    local darkStroke = Instance.new("UIStroke")
+    darkStroke.Color = theme.shadow.dark
+    darkStroke.Transparency = isPressed and 0.3 or 0.7
+    darkStroke.Thickness = 2
+    darkStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    darkStroke.Parent = darkShadow
+    
+    local darkCorner = Instance.new("UICorner")
+    darkCorner.CornerRadius = UDim.new(0, roundness)
+    darkCorner.Parent = darkShadow
+    
+    -- If pressed, add inset effect
+    if isPressed then
+        -- Add inner shadow effect
+        local innerShadow = Instance.new("Frame")
+        innerShadow.Name = "InnerShadow"
+        innerShadow.Size = UDim2.new(1, -4, 1, -4)
+        innerShadow.Position = UDim2.new(0, 2, 0, 2)
+        innerShadow.BackgroundColor3 = theme.background
+        innerShadow.BackgroundTransparency = 0.9
+        innerShadow.BorderSizePixel = 0
+        innerShadow.ZIndex = parent.ZIndex + 1
+        innerShadow.Parent = effectContainer
+        
+        local innerCorner = Instance.new("UICorner")
+        innerCorner.CornerRadius = UDim.new(0, roundness - 2)
+        innerCorner.Parent = innerShadow
+    end
+    
+    return effectContainer
+end
+
+-- Create a neumorphic inset frame (for input fields, etc.)
+local function createNeumorphicInset(parent, roundness, theme)
+    -- Create container for the effect
+    local insetFrame = Instance.new("Frame")
+    insetFrame.Name = "NeumorphicInset"
+    insetFrame.Size = UDim2.new(1, 0, 1, 0)
+    insetFrame.BackgroundColor3 = theme.background
+    insetFrame.BackgroundTransparency = 0.5
+    insetFrame.BorderSizePixel = 0
+    insetFrame.ZIndex = parent.ZIndex
+    insetFrame.Parent = parent
+    
+    local insetCorner = Instance.new("UICorner")
+    insetCorner.CornerRadius = UDim.new(0, roundness)
+    insetCorner.Parent = insetFrame
+    
+    -- Create inner shadow effect
+    local innerShadow = Instance.new("UIStroke")
+    innerShadow.Color = theme.shadow.dark
+    innerShadow.Transparency = 0.5
+    innerShadow.Thickness = 2
+    innerShadow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    innerShadow.Parent = insetFrame
+    
+    -- Create gradient for depth effect
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(240, 240, 245)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(220, 220, 225))
+    })
+    gradient.Rotation = 45
+    gradient.Parent = insetFrame
+    
+    return insetFrame
+end
+
+-- Create a new UI
+function VTripLibrary.new(settings)
+    settings = settings or {}
+    
+    -- Merge with default settings
+    for key, value in pairs(defaultSettings) do
+        if settings[key] == nil then
+            settings[key] = value
+        elseif key == "theme" and type(settings[key]) == "table" then
+            for themeKey, themeValue in pairs(defaultSettings[key]) do
+                if settings[key][themeKey] == nil then
+                    settings[key][themeKey] = themeValue
+                end
+            end
+        end
+    end
+    
+    -- Adjust size for mobile
+    if isMobile then
+        settings.size = UDim2.new(0, math.min(450, workspace.CurrentCamera.ViewportSize.X * 0.9), 0, 380)
+        settings.position = UDim2.new(0.5, -settings.size.X.Offset/2, 0.5, -190)
+    end
+    
+    -- Create UI instance
+    local UI = {}
+    UI.settings = settings
+    UI.tabs = {}
+    UI.selectedTab = 1
+    UI.elements = {}
+    
+    -- Create the main GUI
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "VTripMenu_" .. #UIs + 1
+    screenGui.ResetOnSpawn = false
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    
+    -- Try to use CoreGui for better protection
+    pcall(function()
+        screenGui.Parent = game:GetService("CoreGui")
+    end)
+    
+    -- Fallback to PlayerGui if CoreGui fails
+    if not screenGui.Parent then
+        screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    end
+    
+    UI.screenGui = screenGui
+    
+    -- Create open button (initially hidden)
+    local openButton = Instance.new("TextButton")
+    openButton.Name = "OpenButton"
+    openButton.Size = UDim2.new(0, 120, 0, 40)
+    openButton.Position = UDim2.new(0.5, -60, 0, 10)
+    openButton.BackgroundColor3 = settings.theme.foreground
+    openButton.BackgroundTransparency = 0
+    openButton.Text = "Open Menu"
+    openButton.TextColor3 = settings.theme.text
+    openButton.TextSize = 16
+    openButton.Font = Enum.Font.GothamSemibold
+    openButton.Visible = false
+    openButton.Parent = screenGui
+    UI.openButton = openButton
+    
+    local openButtonCorner = Instance.new("UICorner")
+    openButtonCorner.CornerRadius = UDim.new(0, settings.roundness)
+    openButtonCorner.Parent = openButton
+    
+    -- Add neumorphic effect to open button
+    createNeumorphicEffect(openButton, false, settings.roundness, settings.theme)
+    
+    -- Main frame settings
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Name = "MainFrame"
+    mainFrame.Size = settings.size
+    mainFrame.Position = settings.position
+    mainFrame.BackgroundColor3 = settings.theme.background
+    mainFrame.BackgroundTransparency = 0
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Parent = screenGui
+    UI.mainFrame = mainFrame
+    
+    -- Add rounded corners
+    local uiCorner = Instance.new("UICorner")
+    uiCorner.CornerRadius = UDim.new(0, settings.roundness)
+    uiCorner.Parent = mainFrame
+    
+    -- Add neumorphic effect to main frame
+    createNeumorphicEffect(mainFrame, false, settings.roundness, settings.theme)
+    
+    -- Create top bar
+    local topBar = Instance.new("Frame")
+    topBar.Name = "TopBar"
+    topBar.Size = UDim2.new(1, -20, 0, 50)
+    topBar.Position = UDim2.new(0, 10, 0, 10)
+    topBar.BackgroundColor3 = settings.theme.foreground
+    topBar.BackgroundTransparency = 0
+    topBar.BorderSizePixel = 0
+    topBar.Parent = mainFrame
+    UI.topBar = topBar
+    
+    local topBarCorner = Instance.new("UICorner")
+    topBarCorner.CornerRadius = UDim.new(0, settings.roundness)
+    topBarCorner.Parent = topBar
+    
+    -- Add neumorphic effect to top bar
+    createNeumorphicEffect(topBar, false, settings.roundness, settings.theme)
+    
+    -- Add title (with fixed size and text wrapping)
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "TitleLabel"
+    titleLabel.Size = UDim2.new(0, 200, 0, 25)
+    titleLabel.Position = UDim2.new(0, 15, 0, 5)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = settings.title
+    titleLabel.TextColor3 = settings.theme.text
+    titleLabel.TextSize = 18
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextWrapped = true
+    titleLabel.ClipsDescendants = true
+    titleLabel.Parent = topBar
+    UI.titleLabel = titleLabel
+    
+    -- Add subtitle (with fixed size and text wrapping)
+    local subtitleLabel = Instance.new("TextLabel")
+    subtitleLabel.Name = "SubtitleLabel"
+    subtitleLabel.Size = UDim2.new(0, 200, 0, 20)
+    subtitleLabel.Position = UDim2.new(0, 15, 0, 30)
+    subtitleLabel.BackgroundTransparency = 1
+    subtitleLabel.Text = settings.subtitle
+    subtitleLabel.TextColor3 = settings.theme.subtext
+    subtitleLabel.TextSize = 14
+    subtitleLabel.Font = Enum.Font.GothamSemibold
+    subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    subtitleLabel.TextWrapped = true
+    subtitleLabel.ClipsDescendants = true
+    subtitleLabel.Parent = topBar
+    UI.subtitleLabel = subtitleLabel
+    
+    -- Add close button
+    local closeButton = Instance.new("TextButton")
+    closeButton.Name = "CloseButton"
+    closeButton.Size = UDim2.new(0, 30, 0, 30)
+    closeButton.Position = UDim2.new(1, -40, 0, 10)
+    closeButton.BackgroundColor3 = settings.theme.foreground
+    closeButton.BackgroundTransparency = 0
+    closeButton.Text = "✕"
+    closeButton.TextColor3 = settings.theme.error
+    closeButton.TextSize = 16
+    closeButton.Font = Enum.Font.GothamBold
+    closeButton.Parent = topBar
+    UI.closeButton = closeButton
+    
+    local closeCorner = Instance.new("UICorner")
+    closeCorner.CornerRadius = UDim.new(0, settings.roundness / 2)
+    closeCorner.Parent = closeButton
+    
+    -- Add neumorphic effect to close button
+    createNeumorphicEffect(closeButton, false, settings.roundness / 2, settings.theme)
+    
+    -- Create horizontal tab bar for tab buttons
+    local tabBar = Instance.new("Frame")
+    tabBar.Name = "TabBar"
+    tabBar.Size = UDim2.new(1, -20, 0, 40)
+    tabBar.Position = UDim2.new(0, 10, 0, 70)
+    tabBar.BackgroundColor3 = settings.theme.foreground
+    tabBar.BackgroundTransparency = 0
+    tabBar.BorderSizePixel = 0
+    tabBar.Parent = mainFrame
+    UI.tabBar = tabBar
+
+    local tabBarCorner = Instance.new("UICorner")
+    tabBarCorner.CornerRadius = UDim.new(0, settings.roundness)
+    tabBarCorner.Parent = tabBar
+    
+    -- Add neumorphic effect to tab bar
+    createNeumorphicEffect(tabBar, true, settings.roundness, settings.theme)
+
+    -- Create tab buttons container with scrolling
+    local tabButtonsFrame = Instance.new("ScrollingFrame")
+    tabButtonsFrame.Name = "TabButtonsFrame"
+    tabButtonsFrame.Size = UDim2.new(1, -10, 1, -10)
+    tabButtonsFrame.Position = UDim2.new(0, 5, 0, 5)
+    tabButtonsFrame.BackgroundTransparency = 1
+    tabButtonsFrame.BorderSizePixel = 0
+    tabButtonsFrame.ScrollBarThickness = 4
+    tabButtonsFrame.ScrollBarImageColor3 = settings.theme.accent
+    tabButtonsFrame.ScrollingDirection = Enum.ScrollingDirection.X
+    tabButtonsFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    tabButtonsFrame.Parent = tabBar
+    UI.tabButtonsFrame = tabButtonsFrame
+
+    -- Add layout for tab buttons
+    local tabButtonsLayout = Instance.new("UIListLayout")
+    tabButtonsLayout.Padding = UDim.new(0, 10)
+    tabButtonsLayout.FillDirection = Enum.FillDirection.Horizontal
+    tabButtonsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    tabButtonsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    tabButtonsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    tabButtonsLayout.Parent = tabButtonsFrame
+
+    -- Add padding for tab buttons
+    local tabButtonsPadding = Instance.new("UIPadding")
+    tabButtonsPadding.PaddingLeft = UDim.new(0, 10)
+    tabButtonsPadding.PaddingRight = UDim.new(0, 10)
+    tabButtonsPadding.Parent = tabButtonsFrame
+
+    -- Update content frame position and size to account for horizontal tabs
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Name = "ContentFrame"
+    contentFrame.Size = UDim2.new(1, -20, 1, -120)
+    contentFrame.Position = UDim2.new(0, 10, 0, 120)
+    contentFrame.BackgroundTransparency = 1
+    contentFrame.BorderSizePixel = 0
+    contentFrame.Parent = mainFrame
+    UI.contentFrame = contentFrame
+    
+    -- Add drag functionality
+    local isDragging = false
+    local dragStart = nil
+    local startPos = nil
+    
+    topBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDragging = true
+            dragStart = input.Position
+            startPos = mainFrame.Position
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            mainFrame.Position = UDim2.new(
+                startPos.X.Scale, 
+                startPos.X.Offset + delta.X, 
+                startPos.Y.Scale, 
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+    
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            isDragging = false
+        end
+    end)
+    
+    -- Close button functionality (hide menu and show open button)
+    closeButton.MouseButton1Click:Connect(function()
+        if settings.animations then
+            -- Animate closing
+            local closeTween = TweenService:Create(
+                mainFrame, 
+                TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), 
+                {
+                    Size = UDim2.new(0, 0, 0, 0),
+                    Position = UDim2.new(0.5, 0, 0.5, 0),
+                    BackgroundTransparency = 1
+                }
+            )
+            closeTween:Play()
+            
+            closeTween.Completed:Connect(function()
+                mainFrame.Visible = false
+                openButton.Visible = true
+                
+                -- Reset size and position for next opening
+                mainFrame.Size = settings.size
+                mainFrame.Position = settings.position
+                mainFrame.BackgroundTransparency = 0
+            end)
+        else
+            mainFrame.Visible = false
+            openButton.Visible = true
+        end
+    end)
+    
+    -- Open button functionality
+    openButton.MouseButton1Click:Connect(function()
+        openButton.Visible = false
+        
+        if settings.animations then
+            -- Reset for animation
+            mainFrame.Size = UDim2.new(0, 0, 0, 0)
+            mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+            mainFrame.BackgroundTransparency = 1
+            mainFrame.Visible = true
+            
+            -- Animate opening
+            local openTween = TweenService:Create(
+                mainFrame, 
+                TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), 
+                {
+                    Size = settings.size,
+                    Position = settings.position,
+                    BackgroundTransparency = 0
+                }
+            )
+            openTween:Play()
+        else
+            mainFrame.Visible = true
+        end
+    end)
+    
+    -- Toggle menu visibility with a key (for PC users)
+    local toggleKey = settings.toggleKey
+    
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed and input.KeyCode == toggleKey then
+            if mainFrame.Visible then
+                closeButton.MouseButton1Click:Fire()
+            else
+                openButton.MouseButton1Click:Fire()
+            end
+        end
+    end)
+    
+    -- Update tab functionality
+    function UI:AddTab(name, icon)
+        local iconId = icon or settings.defaultIcon
+        
+        local tabIndex = #self.tabs + 1
+        local tab = {
+            name = name,
+            icon = iconId,
+            elements = {}
+        }
+        
+        -- Create tab button
+        local tabButton = Instance.new("Frame")
+        tabButton.Name = "Tab" .. tabIndex
+        tabButton.Size = UDim2.new(0, 120, 0, 30)
+        tabButton.BackgroundColor3 = settings.theme.foreground
+        tabButton.BackgroundTransparency = 0
+        tabButton.LayoutOrder = tabIndex
+        tabButton.Parent = self.tabButtonsFrame
+        tab.button = tabButton
+        
+        local tabButtonCorner = Instance.new("UICorner")
+        tabButtonCorner.CornerRadius = UDim.new(0, settings.roundness / 2)
+        tabButtonCorner.Parent = tabButton
+        
+        -- Add neumorphic effect to tab button (pressed if it's the first tab)
+        createNeumorphicEffect(tabButton, tabIndex == 1, settings.roundness / 2, settings.theme)
+        
+        -- Add icon
+        local tabIcon = Instance.new("ImageLabel")
+        tabIcon.Name = "Icon"
+        tabIcon.Size = UDim2.new(0, 18, 0, 18)
+        tabIcon.Position = UDim2.new(0, 10, 0.5, -9)
+        tabIcon.BackgroundTransparency = 1
+        tabIcon.Image = iconId
+        tabIcon.ImageColor3 = tabIndex == 1 and settings.theme.accent or settings.theme.subtext
+        tabIcon.Parent = tabButton
+        tab.icon = tabIcon
+        
+        -- Add text label
+        local tabText = Instance.new("TextLabel")
+        tabText.Name = "Text"
+        tabText.Size = UDim2.new(1, -40, 1, 0)
+        tabText.Position = UDim2.new(0, 35, 0, 0)
+        tabText.BackgroundTransparency = 1
+        tabText.Text = name
+        tabText.TextColor3 = tabIndex == 1 and settings.theme.accent or settings.theme.subtext
+        tabText.TextSize = 14
+        tabText.Font = Enum.Font.GothamSemibold
+        tabText.TextXAlignment = Enum.TextXAlignment.Left
+        tabText.Parent = tabButton
+        tab.text = tabText
+        
+        -- Create click detector
+        local clickDetector = Instance.new("TextButton")
+        clickDetector.Name = "ClickDetector"
+        clickDetector.Size = UDim2.new(1, 0, 1, 0)
+        clickDetector.BackgroundTransparency = 1
+        clickDetector.Text = ""
+        clickDetector.Parent = tabButton
+        tab.clickDetector = clickDetector
+        
+        -- Create content page for this tab
+        local tabPage = Instance.new("ScrollingFrame")
+        tabPage.Name = "Page" .. tabIndex
+        tabPage.Size = UDim2.new(1, 0, 1, 0)
+        tabPage.BackgroundTransparency = 1
+        tabPage.BorderSizePixel = 0
+        tabPage.ScrollBarThickness = 4
+        tabPage.ScrollBarImageColor3 = settings.theme.accent
+        tabPage.Visible = tabIndex == 1 -- Only first tab visible by default
+        tabPage.Parent = self.contentFrame
+        tab.page = tabPage
+        
+        -- Add padding to the content
+        local padding = Instance.new("UIPadding")
+        padding.PaddingLeft = UDim.new(0, 10)
+        padding.PaddingRight = UDim.new(0, 10)
+        padding.PaddingTop = UDim.new(0, 10)
+        padding.PaddingBottom = UDim.new(0, 10)
+        padding.Parent = tabPage
+        
+        -- Add layout for content
+        local layout = Instance.new("UIListLayout")
+        layout.Padding = UDim.new(0, 10)
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
+        layout.Parent = tabPage
+        tab.layout = layout
+        
+        -- Tab button click handler
+        clickDetector.MouseButton1Click:Connect(function()
+            -- Hide all pages and reset tab button styling
+            for _, otherTab in ipairs(self.tabs) do
+                otherTab.page.Visible = false
+                otherTab.icon.ImageColor3 = settings.theme.subtext
+                otherTab.text.TextColor3 = settings.theme.subtext
+                
+                -- Update neumorphic effect (not pressed)
+                createNeumorphicEffect(otherTab.button, false, settings.roundness / 2, settings.theme)
+            end
+        
+            -- Show selected page and update tab button styling
+            tabPage.Visible = true
+            tabIcon.ImageColor3 = settings.theme.accent
+            tabText.TextColor3 = settings.theme.accent
+            
+            -- Update neumorphic effect (pressed)
+            createNeumorphicEffect(tabButton, true, settings.roundness / 2, settings.theme)
+        
+            self.selectedTab = tabIndex
+        end)
+        
+        -- Hover effects
+        clickDetector.MouseEnter:Connect(function()
+            if self.selectedTab ~= tabIndex then
+                tabText.TextColor3 = Color3.fromRGB(
+                    lerp(settings.theme.subtext.R, settings.theme.accent.R, 0.3),
+                    lerp(settings.theme.subtext.G, settings.theme.accent.G, 0.3),
+                    lerp(settings.theme.subtext.B, settings.theme.accent.B, 0.3)
+                )
+            end
+        end)
+        
+        clickDetector.MouseLeave:Connect(function()
+            if self.selectedTab ~= tabIndex then
+                tabText.TextColor3 = settings.theme.subtext
+            end
+        end)
+        
+        -- Auto-size the scrolling frame
+        layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            tabPage.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 20)
+        end)
+        
+        -- Add tab to tabs table
+        table.insert(self.tabs, tab)
+        
+        -- Update tab buttons container canvas size
+        tabButtonsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            tabButtonsFrame.CanvasSize = UDim2.new(0, tabButtonsLayout.AbsoluteContentSize.X + 20, 0, 0)
+        end)
+        
+        return tab
+    end
+    
+    -- Add elements to tabs
+    function UI:AddSection(tabIndex, text)
+        local tab = self.tabs[tabIndex]
+        if not tab then return nil end
+        
+        local sectionFrame = Instance.new("Frame")
+        sectionFrame.Name = "Section_" .. text
+        sectionFrame.Size = UDim2.new(1, 0, 0, 35)
+        sectionFrame.BackgroundTransparency = 1
+        sectionFrame.Parent = tab.page
+        
+        local sectionLabel = Instance.new("TextLabel")
+        sectionLabel.Size = UDim2.new(1, 0, 1, 0)
+        sectionLabel.BackgroundTransparency = 1
+        sectionLabel.Text = text
+        sectionLabel.TextColor3 = settings.theme.accent
+        sectionLabel.TextSize = 16
+        sectionLabel.Font = Enum.Font.GothamBold
+        sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+        sectionLabel.Parent = sectionFrame
+        
+        local sectionLine = Instance.new("Frame")
+        sectionLine.Size = UDim2.new(1, 0, 0, 2)
+        sectionLine.Position = UDim2.new(0, 0, 1, -2)
+        sectionLine.BackgroundColor3 = settings.theme.accent
+        sectionLine.BackgroundTransparency = 0.7
+        sectionLine.BorderSizePixel = 0
+        sectionLine.Parent = sectionFrame
+        
+        return sectionFrame
+    end
+    
+    function UI:AddToggle(tabIndex, text, default, callback)
+        local tab = self.tabs[tabIndex]
+        if not tab then return nil end
+        
+        local toggleFrame = Instance.new("Frame")
+        toggleFrame.Name = "Toggle_" .. text
+        toggleFrame.Size = UDim2.new(1, 0, 0, 40)
+        toggleFrame.BackgroundColor3 = settings.theme.foreground
+        toggleFrame.BackgroundTransparency = 0
+        toggleFrame.BorderSizePixel = 0
+        toggleFrame.Parent = tab.page
+        
+        local toggleCorner = Instance.new("UICorner")
+        toggleCorner.CornerRadius = UDim.new(0, settings.roundness / 2)
+        toggleCorner.Parent = toggleFrame
+        
+        -- Add neumorphic effect
+        createNeumorphicEffect(toggleFrame, false, settings.roundness / 2, settings.theme)
+        
+        local toggleLabel = Instance.new("TextLabel")
+        toggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+        toggleLabel.Position = UDim2.new(0, 15, 0, 0)
+        toggleLabel.BackgroundTransparency = 1
+        toggleLabel.Text = text
+        toggleLabel.TextColor3 = settings.theme.text
+        toggleLabel.TextSize = 14
+        toggleLabel.Font = Enum.Font.GothamSemibold
+        toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+        toggleLabel.Parent = toggleFrame
+        
+        -- Improved toggle button design
+        local toggleButton = Instance.new("Frame")
+        toggleButton.Size = UDim2.new(0, 44, 0, 22)
+        toggleButton.Position = UDim2.new(0.85, -22, 0.5, -11)
+        toggleButton.BackgroundColor3 = default and settings.theme.success or settings.theme.foreground
+        toggleButton.BorderSizePixel = 0
+        toggleButton.Parent = toggleFrame
+        
+        local toggleCorner = Instance.new("UICorner")
+        toggleCorner.CornerRadius = UDim.new(0, 11)
+        toggleCorner.Parent = toggleButton
+        
+        -- Add neumorphic inset effect to toggle background
+        createNeumorphicInset(toggleButton, 11, settings.theme)
+        
+        local toggleCircle = Instance.new("Frame")
+        toggleCircle.Size = UDim2.new(0, 18, 0, 18)
+        toggleCircle.Position = default and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+        toggleCircle.BackgroundColor3 = default and settings.theme.success or settings.theme.subtext
+        toggleCircle.BorderSizePixel = 0
+        toggleCircle.ZIndex = 5
+        toggleCircle.Parent = toggleButton
+        
+        local toggleCircleCorner = Instance.new("UICorner")
+        toggleCircleCorner.CornerRadius = UDim.new(0, 9)
+        toggleCircleCorner.Parent = toggleCircle
+        
+        -- Add neumorphic effect to toggle circle
+        createNeumorphicEffect(toggleCircle, false, 9, settings.theme)
+        
+        local toggled = default
+        
+        -- Create a transparent button that covers the entire frame for clicking
+        local clickArea = Instance.new("TextButton")
+        clickArea.Name = "ClickArea"
+        clickArea.Size = UDim2.new(1, 0, 1, 0)
+        clickArea.BackgroundTransparency = 1
+        clickArea.Text = ""
+        clickArea.ZIndex = 10  -- Make sure it's above other elements
+        clickArea.Parent = toggleFrame
+        
+        -- Function to update toggle state
+        local function updateToggle()
+            toggled = not toggled
+            
+            local targetPosition = toggled and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+            local targetColor = toggled and settings.theme.success or settings.theme.subtext
+            local bgColor = toggled and settings.theme.success or settings.theme.foreground
+            
+            if settings.animations then
+                TweenService:Create(toggleCircle, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    Position = targetPosition,
+                    BackgroundColor3 = targetColor
+                }):Play()
+                
+                TweenService:Create(toggleButton, TweenInfo.new(0.2), {
+                    BackgroundColor3 = bgColor
+                }):Play()
+            else
+                toggleCircle.Position = targetPosition
+                toggleCircle.BackgroundColor3 = targetColor
+                toggleButton.BackgroundColor3 = bgColor
+            end
+            
+            if callback then
+                callback(toggled)
+            end
+        end
+        
+        -- Connect click events
+        clickArea.MouseButton1Click:Connect(updateToggle)
+        
+        local toggle = {
+            instance = toggleFrame,
+            value = function() return toggled end,
+            set = function(value)
+                if toggled ~= value then
+                    toggled = value
+                    local targetPosition = toggled and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+                    local targetColor = toggled and settings.theme.success or settings.theme.subtext
+                    local bgColor = toggled and settings.theme.success or settings.theme.foreground
+                    
+                    if settings.animations then
+                        TweenService:Create(toggleCircle, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                            Position = targetPosition,
+                            BackgroundColor3 = targetColor
+                        }):Play()
+                        
+                        TweenService:Create(toggleButton, TweenInfo.new(0.2), {
+                            BackgroundColor3 = bgColor
+                        }):Play()
+                    else
+                        toggleCircle.Position = targetPosition
+                        toggleCircle.BackgroundColor3 = targetColor
+                        toggleButton.BackgroundColor3 = bgColor
+                    end
+                    
+                    if callback then
+                        callback(toggled)
+                    end
+                end
+            end
+        }
+        
+        return toggle
+    end
+    
+    function UI:AddSlider(tabIndex, text, min, max, default, callback)
+        local tab = self.tabs[tabIndex]
+        if not tab then return nil end
+        
+        -- Ensure default is within range
+        default = math.clamp(default or min, min, max)
+        
+        local sliderFrame = Instance.new("Frame")
+        sliderFrame.Name = "Slider_" .. text
+        sliderFrame.Size = UDim2.new(1, 0, 0, 60)
+        sliderFrame.BackgroundColor3 = settings.theme.foreground
+        sliderFrame.BackgroundTransparency = 0
+        sliderFrame.BorderSizePixel = 0
+        sliderFrame.Parent = tab.page
+        
+        local sliderCorner = Instance.new("UICorner")
+        sliderCorner.CornerRadius = UDim.new(0, settings.roundness / 2)
+        sliderCorner.Parent = sliderFrame
+        
+        -- Add neumorphic effect
+        createNeumorphicEffect(sliderFrame, false, settings.roundness / 2, settings.theme)
+        
+        local sliderLabel = Instance.new("TextLabel")
+        sliderLabel.Size = UDim2.new(0.6, 0, 0, 20)
+        sliderLabel.Position = UDim2.new(0, 15, 0, 5)
+        sliderLabel.BackgroundTransparency = 1
+        sliderLabel.Text = text
+        sliderLabel.TextColor3 = settings.theme.text
+        sliderLabel.TextSize = 14
+        sliderLabel.Font = Enum.Font.GothamSemibold
+        sliderLabel.TextXAlignment = Enum.TextXAlignment.Left
+        sliderLabel.Parent = sliderFrame
+        
+        local valueLabel = Instance.new("TextLabel")
+        valueLabel.Size = UDim2.new(0.2, 0, 0, 20)
+        valueLabel.Position = UDim2.new(0.8, -15, 0, 5)
+        valueLabel.BackgroundTransparency = 1
+        valueLabel.Text = tostring(default)
+        valueLabel.TextColor3 = settings.theme.accent
+        valueLabel.TextSize = 14
+        valueLabel.Font = Enum.Font.GothamSemibold
+        valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+        valueLabel.Parent = sliderFrame
+        
+        -- Create slider track container
+        local sliderTrackContainer = Instance.new("Frame")
+        sliderTrackContainer.Size = UDim2.new(1, -30, 0, 10)
+        sliderTrackContainer.Position = UDim2.new(0, 15, 0, 35)
+        sliderTrackContainer.BackgroundColor3 = settings.theme.background
+        sliderTrackContainer.BackgroundTransparency = 0
+        sliderTrackContainer.BorderSizePixel = 0
+        sliderTrackContainer.Parent = sliderFrame
+        
+        local sliderTrackCorner = Instance.new("UICorner")
+        sliderTrackCorner.CornerRadius = UDim.new(0, 5)
+        sliderTrackCorner.Parent = sliderTrackContainer
+        
+        -- Add neumorphic inset effect to track
+        createNeumorphicInset(sliderTrackContainer, 5, settings.theme)
+        
+        local sliderFill = Instance.new("Frame")
+        sliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+        sliderFill.BackgroundColor3 = settings.theme.accent
+        sliderFill.BorderSizePixel = 0
+        sliderFill.ZIndex = 2
+        sliderFill.Parent = sliderTrackContainer
+        
+        local sliderFillCorner = Instance.new("UICorner")
+        sliderFillCorner.CornerRadius = UDim.new(0, 5)
+        sliderFillCorner.Parent = sliderFill
+        
+        local sliderButton = Instance.new("TextButton")
+        sliderButton.Size = UDim2.new(0, 20, 0, 20)
+        sliderButton.Position = UDim2.new((default - min) / (max - min), -10, 0.5, -10)
+        sliderButton.BackgroundColor3 = settings.theme.accent
+        sliderButton.BorderSizePixel = 0
+        sliderButton.Text = ""
+        sliderButton.ZIndex = 3
+        sliderButton.Parent = sliderTrackContainer
+        
+        local sliderButtonCorner = Instance.new("UICorner")
+        sliderButtonCorner.CornerRadius = UDim.new(0, 10)
+        sliderButtonCorner.Parent = sliderButton
+        
+        -- Add neumorphic effect to slider button
+        createNeumorphicEffect(sliderButton, false, 10, settings.theme)
+        
+        local value = default
+        local dragging = false
+        
+        -- Fixed slider update function for small ranges
+        local function updateSlider(input)
+            local relativePos = math.clamp((input.Position.X - sliderTrackContainer.AbsolutePosition.X) / sliderTrackContainer.AbsoluteSize.X, 0, 1)
+            
+            -- Calculate new value with higher precision for small ranges
+            local range = max - min
+            local newValue
+            
+            if range <= 2 then
+                -- For very small ranges (0-1, 0-2), use higher precision
+                newValue = min + (range * relativePos)
+                -- Round to 2 decimal places for small ranges
+                newValue = math.floor(newValue * 100) / 100
+            elseif range <= 10 then
+                -- For small ranges, use 1 decimal place
+                newValue = min + (range * relativePos)
+                newValue = math.floor(newValue * 10) / 10
+            else
+                -- For larger ranges, use integers
+                newValue = min + (range * relativePos)
+                newValue = math.floor(newValue)
+            end
+            
+            -- Clamp to ensure we're within range
+            newValue = math.clamp(newValue, min, max)
+            
+            -- Only update if value changed
+            if newValue ~= value then
+                value = newValue
+                
+                -- Update UI
+                sliderFill.Size = UDim2.new(relativePos, 0, 1, 0)
+                sliderButton.Position = UDim2.new(relativePos, -10, 0.5, -10)
+                
+                -- Format display value based on range
+                if range <= 2 then
+                    valueLabel.Text = string.format("%.2f", value)
+                elseif range <= 10 then
+                    valueLabel.Text = string.format("%.1f", value)
+                else
+                    valueLabel.Text = string.format("%d", value)
+                end
+                
+                -- Call callback
+                if callback then
+                    callback(value)
+                end
+            end
+        end
+        
+        -- Improved slider interaction
+        sliderButton.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                
+                -- Make button slightly larger when dragging
+                if settings.animations then
+                    TweenService:Create(sliderButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 24, 0, 24), Position = UDim2.new(sliderButton.Position.X.Scale, -12, 0.5, -12)}):Play()
+                else
+                    sliderButton.Size = UDim2.new(0, 24, 0, 24)
+                    sliderButton.Position = UDim2.new(sliderButton.Position.X.Scale, -12, 0.5, -12)
+                end
+                
+                -- Update neumorphic effect (pressed)
+                createNeumorphicEffect(sliderButton, true, 12, settings.theme)
+            end
+        end)
+        
+        sliderTrackContainer.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                updateSlider(input)
+                dragging = true
+                
+                -- Make button slightly larger when dragging
+                if settings.animations then
+                    TweenService:Create(sliderButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 24, 0, 24), Position = UDim2.new(sliderButton.Position.X.Scale, -12, 0.5, -12)}):Play()
+                else
+                    sliderButton.Size = UDim2.new(0, 24, 0, 24)
+                    sliderButton.Position = UDim2.new(sliderButton.Position.X.Scale, -12, 0.5, -12)
+                end
+                
+                -- Update neumorphic effect (pressed)
+                createNeumorphicEffect(sliderButton, true, 12, settings.theme)
+            end
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                updateSlider(input)
+            end
+        end)
+        
+        UserInputService.InputEnded:Connect(function(input)
+            if dragging and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+                dragging = false
+                
+                -- Return button to normal size
+                if settings.animations then
+                    TweenService:Create(sliderButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(sliderButton.Position.X.Scale, -10, 0.5, -10)}):Play()
+                else
+                    sliderButton.Size = UDim2.new(0, 20, 0, 20)
+                    sliderButton.Position = UDim2.new(sliderButton.Position.X.Scale, -10, 0.5, -10)
+                end
+                
+                -- Update neumorphic effect (not pressed)
+                createNeumorphicEffect(sliderButton, false, 10, settings.theme)
+            end
+        end)
+        
+        -- Format initial value display based on range
+        if max - min <= 2 then
+            valueLabel.Text = string.format("%.2f", value)
+        elseif max - min <= 10 then
+            valueLabel.Text = string.format("%.1f", value)
+        else
+            valueLabel.Text = string.format("%d", value)
+        end
+        
+        local slider = {
+            instance = sliderFrame,
+            value = function() return value end,
+            set = function(newValue)
+                newValue = math.clamp(newValue, min, max)
+                
+                -- Only update if value changed
+                if value ~= newValue then
+                    value = newValue
+                    local relativePos = (value - min) / (max - min)
+                    
+                    -- Update UI
+                    sliderFill.Size = UDim2.new(relativePos, 0, 1, 0)
+                    sliderButton.Position = UDim2.new(relativePos, -10, 0.5, -10)
+                    
+                    -- Format display value based on range
+                    if max - min <= 2 then
+                        valueLabel.Text = string.format("%.2f", value)
+                    elseif max - min <= 10 then
+                        valueLabel.Text = string.format("%.1f", value)
+                    else
+                        valueLabel.Text = string.format("%d", value)
+                    end
+                    
+                    -- Call callback
+                    if callback then
+                        callback(value)
+                    end
+                end
+            end,
+            setRange = function(newMin, newMax)
+                min = newMin
+                max = newMax
+                
+                -- Ensure value is within new range
+                local newValue = math.clamp(value, min, max)
+                if value ~= newValue then
+                    value = newValue
+                end
+                
+                -- Update UI
+                local relativePos = (value - min) / (max - min)
+                sliderFill.Size = UDim2.new(relativePos, 0, 1, 0)
+                sliderButton.Position = UDim2.new(relativePos, -10, 0.5, -10)
+                
+                -- Format display value based on range
+                if max - min <= 2 then
+                    valueLabel.Text = string.format("%.2f", value)
+                elseif max - min <= 10 then
+                    valueLabel.Text = string.format("%.1f", value)
+                else
+                    valueLabel.Text = string.format("%d", value)
+                end
+            end
+        }
+        
+        return slider
+    end
+    
+    function UI:AddDropdown(tabIndex, text, options, default, callback, autoUpdate)
+        local tab = self.tabs[tabIndex]
+        if not tab then return nil end
+        
+        -- Ensure default is valid
+        if default and not table.find(options, default) then
+            default = options[1]
+        elseif not default and #options > 0 then
+            default = options[1]
+        end
+        
+        local dropdownFrame = Instance.new("Frame")
+        dropdownFrame.Name = "Dropdown_" .. text
+        dropdownFrame.Size = UDim2.new(1, 0, 0, 40)
+        dropdownFrame.BackgroundColor3 = settings.theme.foreground
+        dropdownFrame.BackgroundTransparency = 0
+        dropdownFrame.BorderSizePixel = 0
+        dropdownFrame.Parent = tab.page
+        
+        local dropdownCorner = Instance.new("UICorner")
+        dropdownCorner.CornerRadius = UDim.new(0, settings.roundness / 2)
+        dropdownCorner.Parent = dropdownFrame
+        
+        -- Add neumorphic effect
+        createNeumorphicEffect(dropdownFrame, false, settings.roundness / 2, settings.theme)
+        
+        local dropdownLabel = Instance.new("TextLabel")
+        dropdownLabel.Size = UDim2.new(0.4, 0, 1, 0)
+        dropdownLabel.Position = UDim2.new(0, 15, 0, 0)
+        dropdownLabel.BackgroundTransparency = 1
+        dropdownLabel.Text = text
+        dropdownLabel.TextColor3 = settings.theme.text
+        dropdownLabel.TextSize = 14
+        dropdownLabel.Font = Enum.Font.GothamSemibold
+        dropdownLabel.TextXAlignment = Enum.TextXAlignment.Left
+        dropdownLabel.Parent = dropdownFrame
+        
+        -- Create dropdown button container
+        local dropdownButtonContainer = Instance.new("Frame")
+        dropdownButtonContainer.Size = UDim2.new(0.6, -25, 0, 30)
+        dropdownButtonContainer.Position = UDim2.new(0.4, 10, 0.5, -15)
+        dropdownButtonContainer.BackgroundColor3 = settings.theme.background
+        dropdownButtonContainer.BackgroundTransparency = 0
+        dropdownButtonContainer.BorderSizePixel = 0
+        dropdownButtonContainer.Parent = dropdownFrame
+        
+        local dropdownButtonCorner = Instance.new("UICorner")
+        dropdownButtonCorner.CornerRadius = UDim.new(0, settings.roundness / 2)
+        dropdownButtonCorner.Parent = dropdownButtonContainer
+        
+        -- Add neumorphic inset effect to dropdown button
+        createNeumorphicInset(dropdownButtonContainer, settings.roundness / 2, settings.theme)
+        
+        local dropdownButton = Instance.new("TextButton")
+        dropdownButton.Size = UDim2.new(1, 0, 1, 0)
+        dropdownButton.BackgroundTransparency = 1
+        dropdownButton.Text = default or "Select..."
+        dropdownButton.TextColor3 = settings.theme.text
+        dropdownButton.TextSize = 14
+        dropdownButton.Font = Enum.Font.GothamSemibold
+        dropdownButton.Parent = dropdownButtonContainer
+        
+        -- Add arrow icon
+        local arrowIcon = Instance.new("ImageLabel")
+        arrowIcon.Size = UDim2.new(0, 20, 0, 20)
+        arrowIcon.Position = UDim2.new(1, -25, 0.5, -10)
+        arrowIcon.BackgroundTransparency = 1
+        arrowIcon.Image = "rbxassetid://7734053495" -- Down arrow icon
+        arrowIcon.ImageColor3 = settings.theme.subtext
+        arrowIcon.Parent = dropdownButton
+        
+        -- Create dropdown list directly in ScreenGui to avoid being clipped
+        local dropdownList = Instance.new("Frame")
+        dropdownList.Name = "DropdownList_" .. text
+        dropdownList.Size = UDim2.new(0.6, -25, 0, 0) -- Start with 0 height
+        dropdownList.BackgroundColor3 = settings.theme.foreground
+        dropdownList.BackgroundTransparency = 0
+        dropdownList.BorderSizePixel = 0
+        dropdownList.Visible = false
+        dropdownList.ZIndex = 100 -- High ZIndex to appear above everything
+        dropdownList.ClipsDescendants = true -- Clip contents during animation
+        dropdownList.Parent = screenGui -- Add to ScreenGui instead of dropdownFrame
+        
+        local dropdownListCorner = Instance.new("UICorner")
+        dropdownListCorner.CornerRadius = UDim.new(0, settings.roundness / 2)
+        dropdownListCorner.Parent = dropdownList
+        
+        -- Add neumorphic effect to dropdown list
+        createNeumorphicEffect(dropdownList, false, settings.roundness / 2, settings.theme)
+        
+        -- Add scroll frame for options
+        local optionsFrame = Instance.new("ScrollingFrame")
+        optionsFrame.Size = UDim2.new(1, -10, 1, -10)
+        optionsFrame.Position = UDim2.new(0, 5, 0, 5)
+        optionsFrame.BackgroundTransparency = 1
+        optionsFrame.BorderSizePixel = 0
+        optionsFrame.ScrollBarThickness = 4
+        optionsFrame.ScrollBarImageColor3 = settings.theme.accent
+        optionsFrame.ZIndex = 101
+        optionsFrame.Parent = dropdownList
+        
+        -- Add layout for options
+        local optionsLayout = Instance.new("UIListLayout")
+        optionsLayout.Padding = UDim.new(0, 5)
+        optionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        optionsLayout.Parent = optionsFrame
+        
+        -- Add padding for options
+        local optionsPadding = Instance.new("UIPadding")
+        optionsPadding.PaddingTop = UDim.new(0, 5)
+        optionsPadding.PaddingBottom = UDim.new(0, 5)
+        optionsPadding.PaddingLeft = UDim.new(0, 5)
+        optionsPadding.PaddingRight = UDim.new(0, 5)
+        optionsPadding.Parent = optionsFrame
+        
+        local selectedOption = default or (options[1] or "")
+        local isOpen = false
+        
+        -- Function to create option buttons
+        local function createOptions()
+            -- Clear existing options
+            for _, child in pairs(optionsFrame:GetChildren()) do
+                if child:IsA("TextButton") then
+                    child:Destroy()
+                end
+            end
+            
+            -- Create option buttons
+            for i, option in ipairs(options) do
+                local optionButton = Instance.new("TextButton")
+                optionButton.Size = UDim2.new(1, -10, 0, 30)
+                optionButton.BackgroundColor3 = option == selectedOption and settings.theme.accent or settings.theme.background
+                optionButton.BackgroundTransparency = option == selectedOption and 0.7 or 0.3
+                optionButton.Text = option
+                optionButton.TextColor3 = option == selectedOption and settings.theme.accent or settings.theme.text
+                optionButton.TextSize = 14
+                optionButton.Font = Enum.Font.GothamSemibold
+                optionButton.ZIndex = 102
+                optionButton.LayoutOrder = i
+                optionButton.Parent = optionsFrame
+                
+                local optionCorner = Instance.new("UICorner")
+                optionCorner.CornerRadius = UDim.new(0, settings.roundness / 3)
+                optionCorner.Parent = optionButton
+                
+                -- Add neumorphic effect to option button
+                createNeumorphicEffect(optionButton, option == selectedOption, settings.roundness / 3, settings.theme)
+                
+                -- Highlight on hover
+                optionButton.MouseEnter:Connect(function()
+                    if option ~= selectedOption then
+                        optionButton.TextColor3 = settings.theme.accent
+                    end
+                end)
+                
+                optionButton.MouseLeave:Connect(function()
+                    if option ~= selectedOption then
+                        optionButton.TextColor3 = settings.theme.text
+                    end
+                end)
+                
+                optionButton.MouseButton1Click:Connect(function()
+                    -- Update selected option
+                    if selectedOption ~= option then
+                        -- Reset previous selected option
+                        for _, child in pairs(optionsFrame:GetChildren()) do
+                            if child:IsA("TextButton") and child.Text == selectedOption then
+                                child.BackgroundColor3 = settings.theme.background
+                                child.BackgroundTransparency = 0.3
+                                child.TextColor3 = settings.theme.text
+                                createNeumorphicEffect(child, false, settings.roundness / 3, settings.theme)
+                                break
+                            end
+                        end
+                        
+                        selectedOption = option
+                        dropdownButton.Text = option
+                        optionButton.BackgroundColor3 = settings.theme.accent
+                        optionButton.BackgroundTransparency = 0.7
+                        optionButton.TextColor3 = settings.theme.accent
+                        createNeumorphicEffect(optionButton, true, settings.roundness / 3, settings.theme)
+                        
+                        -- Call callback
+                        if callback then
+                            callback(option)
+                        end
+                    end
+                    
+                    -- Close dropdown
+                    isOpen = false
+                    
+                    -- Animate closing
+                    if settings.animations then
+                        local closeTween = TweenService:Create(
+                            dropdownList, 
+                            TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), 
+                            {Size = UDim2.new(0.6, -25, 0, 0)}
+                        )
+                        closeTween:Play()
+                        
+                        -- Rotate arrow back
+                        TweenService:Create(
+                            arrowIcon, 
+                            TweenInfo.new(0.2), 
+                            {Rotation = 0}
+                        ):Play()
+                        
+                        closeTween.Completed:Connect(function()
+                            dropdownList.Visible = false
+                        end)
+                    else
+                        dropdownList.Visible = false
+                        arrowIcon.Rotation = 0
+                    end
+                end)
+            end
+            
+            -- Update options frame canvas size
+            optionsFrame.CanvasSize = UDim2.new(0, 0, 0, #options * 35 + 10)
+        end
+        
+        -- Initial creation of options
+        createOptions()
+        
+        -- Update dropdown list position and size when button is clicked
+        dropdownButton.MouseButton1Click:Connect(function()
+            isOpen = not isOpen
+            
+            if isOpen then
+                -- Calculate absolute position for dropdown list
+                local buttonAbsolutePosition = dropdownButtonContainer.AbsolutePosition
+                local buttonAbsoluteSize = dropdownButtonContainer.AbsoluteSize
+                
+                -- Position the dropdown list below the button
+                dropdownList.Position = UDim2.new(
+                    0, buttonAbsolutePosition.X,
+                    0, buttonAbsolutePosition.Y + buttonAbsoluteSize.Y + 5
+                )
+                
+                -- Match width with the button
+                dropdownList.Size = UDim2.new(
+                    0, buttonAbsoluteSize.X,
+                    0, 0 -- Start with 0 height for animation
+                )
+                
+                -- Calculate height based on number of options (max 200 pixels)
+                local listHeight = math.min(#options * 40, 200)
+                
+                -- Make visible before animating
+                dropdownList.Visible = true
+                
+                -- Update options frame canvas size
+                optionsFrame.CanvasSize = UDim2.new(0, 0, 0, #options * 35 + 10)
+                
+                -- Animate opening
+                if settings.animations then
+                    TweenService:Create(
+                        dropdownList, 
+                        TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+                        {Size = UDim2.new(0, buttonAbsoluteSize.X, 0, listHeight)}
+                    ):Play()
+                    
+                    -- Rotate arrow
+                    TweenService:Create(
+                        arrowIcon, 
+                        TweenInfo.new(0.2), 
+                        {Rotation = 180}
+                    ):Play()
+                else
+                    dropdownList.Size = UDim2.new(0, buttonAbsoluteSize.X, 0, listHeight)
+                    arrowIcon.Rotation = 180
+                end
+            else
+                -- Animate closing
+                if settings.animations then
+                    local closeTween = TweenService:Create(
+                        dropdownList, 
+                        TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), 
+                        {Size = UDim2.new(dropdownList.Size.X.Scale, dropdownList.Size.X.Offset, 0, 0)}
+                    )
+                    closeTween:Play()
+                    
+                    -- Rotate arrow back
+                    TweenService:Create(
+                        arrowIcon, 
+                        TweenInfo.new(0.2), 
+                        {Rotation = 0}
+                    ):Play()
+                    
+                    closeTween.Completed:Connect(function()
+                        dropdownList.Visible = false
+                    end)
+                else
+                    dropdownList.Visible = false
+                    arrowIcon.Rotation = 0
+                end
+            end
+        end)
+        
+        -- Close dropdown when clicking elsewhere
+        UserInputService.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                if isOpen then
+                    local position = input.Position
+                    local dropdownListAbsolutePosition = dropdownList.AbsolutePosition
+                    local dropdownListAbsoluteSize = dropdownList.AbsoluteSize
+                    
+                    -- Check if click is outside the dropdown list and button
+                    if position.X < dropdownListAbsolutePosition.X or
+                       position.X > dropdownListAbsolutePosition.X + dropdownListAbsoluteSize.X or
+                       position.Y < dropdownListAbsolutePosition.Y or
+                       position.Y > dropdownListAbsolutePosition.Y + dropdownListAbsoluteSize.Y then
+                        
+                        -- Also check if click is not on the dropdown button
+                        local buttonAbsolutePosition = dropdownButtonContainer.AbsolutePosition
+                        local buttonAbsoluteSize = dropdownButtonContainer.AbsoluteSize
+                        
+                        if position.X < buttonAbsolutePosition.X or
+                           position.X > buttonAbsolutePosition.X + buttonAbsoluteSize.X or
+                           position.Y < buttonAbsolutePosition.Y or
+                           position.Y > buttonAbsolutePosition.Y + buttonAbsoluteSize.Y then
+                            
+                            -- Close dropdown
+                            isOpen = false
+                            
+                            -- Animate closing
+                            if settings.animations then
+                                local closeTween = TweenService:Create(
+                                    dropdownList, 
+                                    TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), 
+                                    {Size = UDim2.new(dropdownList.Size.X.Scale, dropdownList.Size.X.Offset, 0, 0)}
+                                )
+                                closeTween:Play()
+                                
+                                -- Rotate arrow back
+                                TweenService:Create(
+                                    arrowIcon, 
+                                    TweenInfo.new(0.2), 
+                                    {Rotation = 0}
+                                ):Play()
+                                
+                                closeTween.Completed:Connect(function()
+                                    dropdownList.Visible = false
+                                end)
+                            else
+                                dropdownList.Visible = false
+                                arrowIcon.Rotation = 0
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+        
+        -- Auto-update functionality
+        local updateConnection
+        if autoUpdate and typeof(autoUpdate) == "function" then
+            updateConnection = RunService.Heartbeat:Connect(function()
+                local newOptions = autoUpdate()
+                if newOptions and typeof(newOptions) == "table" and #newOptions > 0 then
+                    -- Check if options have changed
+                    local changed = false
+                    if #newOptions ~= #options then
+                        changed = true
+                    else
+                        for i, option in ipairs(newOptions) do
+                            if options[i] ~= option then
+                                changed = true
+                                break
+                            end
+                        end
+                    end
+                    
+                    if changed then
+                        options = newOptions
+                        
+                        -- Ensure selected option is still valid
+                        if not table.find(options, selectedOption) and #options > 0 then
+                            selectedOption = options[1]
+                            dropdownButton.Text = selectedOption
+                            
+                            -- Call callback with new selection
+                            if callback then
+                                callback(selectedOption)
+                            end
+                        end
+                        
+                        -- Recreate options if dropdown is open
+                        if isOpen then
+                            createOptions()
+                        end
+                    end
+                end
+            end)
+        end
+        
+        local dropdown = {
+            instance = dropdownFrame,
+            value = function() return selectedOption end,
+            set = function(option)
+                if table.find(options, option) and selectedOption ~= option then
+                    -- Reset previous selected option
+                    for _, child in pairs(optionsFrame:GetChildren()) do
+                        if child:IsA("TextButton") and child.Text == selectedOption then
+                            child.BackgroundColor3 = settings.theme.background
+                            child.BackgroundTransparency = 0.3
+                            child.TextColor3 = settings.theme.text
+                            createNeumorphicEffect(child, false, settings.roundness / 3, settings.theme)
+                            break
+                        end
+                    end
+                    
+                    -- Update selected option
+                    selectedOption = option
+                    dropdownButton.Text = option
+                    
+                    -- Update option button appearance
+                    for _, child in pairs(optionsFrame:GetChildren()) do
+                        if child:IsA("TextButton") and child.Text == option then
+                            child.BackgroundColor3 = settings.theme.accent
+                            child.BackgroundTransparency = 0.7
+                            child.TextColor3 = settings.theme.accent
+                            createNeumorphicEffect(child, true, settings.roundness / 3, settings.theme)
+                            break
+                        end
+                    end
+                    
+                    -- Call callback
+                    if callback then
+                        callback(option)
+                    end
+                end
+            end,
+            setOptions = function(newOptions, newDefault)
+                -- Clear existing options
+                options = newOptions
+                
+                -- Set default if provided, otherwise use first option
+                if newDefault and table.find(newOptions, newDefault) then
+                    selectedOption = newDefault
+                elseif #newOptions > 0 then
+                    selectedOption = newOptions[1]
+                else
+                    selectedOption = ""
+                end
+                
+                dropdownButton.Text = selectedOption
+                
+                -- Recreate options
+                createOptions()
+                
+                -- Call callback with new selection
+                if callback then
+                    callback(selectedOption)
+                end
+            end,
+            refresh = function()
+                createOptions()
+            end,
+            destroy = function()
+                if updateConnection then
+                    updateConnection:Disconnect()
+                end
+            end
+        }
+        
+        return dropdown
+    end
+    
+    function UI:AddInput(tabIndex, text, placeholder, default, callback, inputType)
+        local tab = self.tabs[tabIndex]
+        if not tab then return nil end
+        
+        inputType = inputType or "text" -- text, number, password
+        
+        local inputFrame = Instance.new("Frame")
+        inputFrame.Name = "Input_" .. text
+        inputFrame.Size = UDim2.new(1, 0, 0, 40)
+        inputFrame.BackgroundColor3 = settings.theme.foreground
+        inputFrame.BackgroundTransparency = 0
+        inputFrame.BorderSizePixel = 0
+        inputFrame.Parent = tab.page
+        
+        local inputCorner = Instance.new("UICorner")
+        inputCorner.CornerRadius = UDim.new(0, settings.roundness / 2)
+        inputCorner.Parent = inputFrame
+        
+        -- Add neumorphic effect
+        createNeumorphicEffect(inputFrame, false, settings.roundness / 2, settings.theme)
+        
+        local inputLabel = Instance.new("TextLabel")
+        inputLabel.Size = UDim2.new(0.4, 0, 1, 0)
+        inputLabel.Position = UDim2.new(0, 15, 0, 0)
+        inputLabel.BackgroundTransparency = 1
+        inputLabel.Text = text
+        inputLabel.TextColor3 = settings.theme.text
+        inputLabel.TextSize = 14
+        inputLabel.Font = Enum.Font.GothamSemibold
+        inputLabel.TextXAlignment = Enum.TextXAlignment.Left
+        inputLabel.Parent = inputFrame
+        
+        -- Create input box container
+        local inputBoxContainer = Instance.new("Frame")
+        inputBoxContainer.Size = UDim2.new(0.6, -25, 0, 30)
+        inputBoxContainer.Position = UDim2.new(0.4, 10, 0.5, -15)
+        inputBoxContainer.BackgroundColor3 = settings.theme.background
+        inputBoxContainer.BackgroundTransparency = 0
+        inputBoxContainer.BorderSizePixel = 0
+        inputBoxContainer.Parent = inputFrame
+        
+        local inputBoxCorner = Instance.new("UICorner")
+        inputBoxCorner.CornerRadius = UDim.new(0, settings.roundness / 2)
+        inputBoxCorner.Parent = inputBoxContainer
+        
+        -- Add neumorphic inset effect to input box
+        createNeumorphicInset(inputBoxContainer, settings.roundness / 2, settings.theme)
+        
+        local inputBox = Instance.new("TextBox")
+        inputBox.Size = UDim2.new(1, -10, 1, 0)
+        inputBox.Position = UDim2.new(0, 5, 0, 0)
+        inputBox.BackgroundTransparency = 1
+        inputBox.Text = default or ""
+        inputBox.PlaceholderText = placeholder or "Enter text..."
+        inputBox.TextColor3 = settings.theme.text
+        inputBox.PlaceholderColor3 = settings.theme.subtext
+        inputBox.TextSize = 14
+        inputBox.Font = Enum.Font.GothamSemibold
+        inputBox.ClearTextOnFocus = false
+        inputBox.Parent = inputBoxContainer
+        
+        -- For storing the actual text in password mode
+        local actualText = default or ""
+        
+        -- Set input type specific properties
+        if inputType == "number" then
+            inputBox.PlaceholderText = placeholder or "Enter number..."
+            -- Only allow numbers, decimal point, and minus sign
+            inputBox:GetPropertyChangedSignal("Text"):Connect(function()
+                inputBox.Text = inputBox.Text:gsub("[^%d%-%.]+", "")
+            end)
+        elseif inputType == "password" then
+            inputBox.TextScaled = false
+            inputBox.TextSize = 14
+            inputBox.PlaceholderText = placeholder or "Enter password..."
+            -- Show asterisks instead of actual text
+            inputBox.Text = string.rep("*", #actualText)
+            
+            inputBox.Focused:Connect(function()
+                inputBox.Text = actualText
+            end)
+            
+            inputBox.FocusLost:Connect(function()
+                actualText = inputBox.Text
+                inputBox.Text = string.rep("*", #actualText)
+            end)
+        end
+        
+        -- Add focus effects
+        inputBox.Focused:Connect(function()
+            -- Create highlight effect when focused
+            TweenService:Create(inputBoxContainer, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(
+                    lerp(settings.theme.background.R, settings.theme.accent.R, 0.1),
+                    lerp(settings.theme.background.G, settings.theme.accent.G, 0.1),
+                    lerp(settings.theme.background.B, settings.theme.accent.B, 0.1)
+                )
+            }):Play()
+        end)
+        
+        inputBox.FocusLost:Connect(function(enterPressed)
+            -- Remove highlight effect when focus lost
+            TweenService:Create(inputBoxContainer, TweenInfo.new(0.2), {
+                BackgroundColor3 = settings.theme.background
+            }):Play()
+            
+            if callback then
+                if inputType == "number" then
+                    local num = tonumber(inputBox.Text) or 0
+                    callback(num, enterPressed)
+                elseif inputType == "password" then
+                    callback(actualText, enterPressed)
+                else
+                    callback(inputBox.Text, enterPressed)
+                end
+            end
+        end)
+        
+        local input = {
+            instance = inputFrame,
+            value = function() 
+                if inputType == "number" then
+                    return tonumber(inputBox.Text) or 0
+                elseif inputType == "password" then
+                    return actualText or ""
+                else
+                    return inputBox.Text
+                end
+            end,
+            set = function(text)
+                if inputType == "number" then
+                    inputBox.Text = tostring(text or 0)
+                elseif inputType == "password" then
+                    actualText = text or ""
+                    inputBox.Text = string.rep("*", #actualText)
+                else
+                    inputBox.Text = text or ""
+                end
+                
+                if callback then
+                    if inputType == "number" then
+                        callback(tonumber(inputBox.Text) or 0, false)
+                    elseif inputType == "password" then
+                        callback(actualText, false)
+                    else
+                        callback(inputBox.Text, false)
+                    end
+                end
+            end,
+            focus = function()
+                inputBox:CaptureFocus()
+            end
+        }
+        
+        return input
+    end
+    
+    function UI:AddButton(tabIndex, text, callback)
+        local tab = self.tabs[tabIndex]
+        if not tab then return nil end
+        
+        local buttonFrame = Instance.new("TextButton")
+        buttonFrame.Name = "Button_" .. text
+        buttonFrame.Size = UDim2.new(1, 0, 0, 40)
+        buttonFrame.BackgroundColor3 = settings.theme.foreground
+        buttonFrame.BackgroundTransparency = 0
+        buttonFrame.BorderSizePixel = 0
+        buttonFrame.Text = text
+        buttonFrame.TextColor3 = settings.theme.text
+        buttonFrame.TextSize = 14
+        buttonFrame.Font = Enum.Font.GothamBold
+        buttonFrame.Parent = tab.page
+        
+        local buttonCorner = Instance.new("UICorner")
+        buttonCorner.CornerRadius = UDim.new(0, settings.roundness / 2)
+        buttonCorner.Parent = buttonFrame
+        
+        -- Add neumorphic effect
+        createNeumorphicEffect(buttonFrame, false, settings.roundness / 2, settings.theme)
+        
+        -- Add hover and click effects
+        buttonFrame.MouseEnter:Connect(function()
+            buttonFrame.TextColor3 = settings.theme.accent
+        end)
+        
+        buttonFrame.MouseLeave:Connect(function()
+            buttonFrame.TextColor3 = settings.theme.text
+        end)
+        
+        -- Fixed button click animation to only affect the button itself
+        buttonFrame.MouseButton1Down:Connect(function()
+            -- Update neumorphic effect (pressed)
+            createNeumorphicEffect(buttonFrame, true, settings.roundness / 2, settings.theme)
+            
+            if settings.animations then
+                -- Scale down slightly
+                TweenService:Create(buttonFrame, TweenInfo.new(0.1), {
+                    Size = UDim2.new(0.98, 0, 0, 38),
+                    Position = UDim2.new(0.01, 0, 0, 1)
+                }):Play()
+            else
+                buttonFrame.Size = UDim2.new(0.98, 0, 0, 38)
+                buttonFrame.Position = UDim2.new(0.01, 0, 0, 1)
+            end
+        end)
+        
+        buttonFrame.MouseButton1Up:Connect(function()
+            -- Update neumorphic effect (not pressed)
+            createNeumorphicEffect(buttonFrame, false, settings.roundness / 2, settings.theme)
+            
+            if settings.animations then
+                -- Return to normal
+                TweenService:Create(buttonFrame, TweenInfo.new(0.1), {
+                    Size = UDim2.new(1, 0, 0, 40),
+                    Position = UDim2.new(0, 0, 0, 0)
+                }):Play()
+            else
+                buttonFrame.Size = UDim2.new(1, 0, 0, 40)
+                buttonFrame.Position = UDim2.new(0, 0, 0, 0)
+            end
+        end)
+        
+        buttonFrame.MouseButton1Click:Connect(function()
+            if callback then
+                callback()
+            end
+        end)
+        
+        local button = {
+            instance = buttonFrame,
+            setText = function(newText)
+                buttonFrame.Text = newText
+            end,
+            setCallback = function(newCallback)
+                callback = newCallback
+            end
+        }
+        
+        return button
+    end
+    
+    -- Notification system
+    function UI:Notify(text, duration, notifType)
+        duration = duration or 3
+        notifType = notifType or "info" -- info, success, warning, error
+        
+        -- Determine color based on type
+        local notifColor
+        if notifType == "success" then
+            notifColor = settings.theme.success
+        elseif notifType == "warning" then
+            notifColor = settings.theme.warning
+        elseif notifType == "error" then
+            notifColor = settings.theme.error
+        else
+            notifColor = settings.theme.accent
+        end
+        
+        -- Create notification container if it doesn't exist
+        if not screenGui:FindFirstChild("NotificationContainer") then
+            local container = Instance.new("Frame")
+            container.Name = "NotificationContainer"
+            container.Size = UDim2.new(0, 250, 1, 0)
+            container.Position = UDim2.new(1, -260, 0, 0)
+            container.BackgroundTransparency = 1
+            container.Parent = screenGui
+            
+            local layout = Instance.new("UIListLayout")
+            layout.Padding = UDim.new(0, 10)
+            layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+            layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+            layout.SortOrder = Enum.SortOrder.LayoutOrder
+            layout.Parent = container
+            
+            local padding = Instance.new("UIPadding")
+            padding.PaddingBottom = UDim.new(0, 20)
+            padding.Parent = container
+        end
+        
+        local container = screenGui:FindFirstChild("NotificationContainer")
+        
+        -- Create notification
+        local notification = Instance.new("Frame")
+        notification.Name = "Notification"
+        notification.Size = UDim2.new(1, -20, 0, 0) -- Start with 0 height for animation
+        notification.BackgroundColor3 = settings.theme.foreground
+        notification.BackgroundTransparency = 0
+        notification.BorderSizePixel = 0
+        notification.ClipsDescendants = true
+        notification.Parent = container
+        
+        local notifCorner = Instance.new("UICorner")
+        notifCorner.CornerRadius = UDim.new(0, settings.roundness)
+        notifCorner.Parent = notification
+        
+        -- Add neumorphic effect
+        createNeumorphicEffect(notification, false, settings.roundness, settings.theme)
+        
+        -- Add colored accent bar
+        local accentBar = Instance.new("Frame")
+        accentBar.Name = "AccentBar"
+        accentBar.Size = UDim2.new(0, 4, 1, 0)
+        accentBar.BackgroundColor3 = notifColor
+        accentBar.BorderSizePixel = 0
+        accentBar.Parent = notification
+        
+        local accentBarCorner = Instance.new("UICorner")
+        accentBarCorner.CornerRadius = UDim.new(0, 2)
+        accentBarCorner.Parent = accentBar
+        
+        -- Add notification text
+        local notifText = Instance.new("TextLabel")
+        notifText.Size = UDim2.new(1, -20, 1, 0)
+        notifText.Position = UDim2.new(0, 15, 0, 0)
+        notifText.BackgroundTransparency = 1
+        notifText.Text = text
+        notifText.TextColor3 = settings.theme.text
+        notifText.TextSize = 14
+        notifText.Font = Enum.Font.GothamSemibold
+        notifText.TextWrapped = true
+        notifText.TextXAlignment = Enum.TextXAlignment.Left
+        notifText.Parent = notification
+        
+        -- Add close button
+        local closeButton = Instance.new("TextButton")
+        closeButton.Size = UDim2.new(0, 20, 0, 20)
+        closeButton.Position = UDim2.new(1, -25, 0, 5)
+        closeButton.BackgroundTransparency = 1
+        closeButton.Text = "✕"
+        closeButton.TextColor3 = settings.theme.subtext
+        closeButton.TextSize = 16
+        closeButton.Font = Enum.Font.GothamBold
+        closeButton.Parent = notification
+        
+        -- Calculate height based on text
+        local textSize = TextService:GetTextSize(
+            text, 
+            14, 
+            Enum.Font.GothamSemibold, 
+            Vector2.new(notification.AbsoluteSize.X - 40, 1000)
+        )
+        
+        local height = math.max(textSize.Y + 20, 40) -- Minimum height of 40
+        
+        -- Animate in
+        if settings.animations then
+            notification.Size = UDim2.new(1, -20, 0, 0)
+            TweenService:Create(
+                notification,
+                TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+                {Size = UDim2.new(1, -20, 0, height)}
+            ):Play()
+        else
+            notification.Size = UDim2.new(1, -20, 0, height)
+        end
+        
+        -- Close button functionality
+        closeButton.MouseButton1Click:Connect(function()
+            if settings.animations then
+                local closeTween = TweenService:Create(
+                    notification,
+                    TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In),
+                    {Size = UDim2.new(1, -20, 0, 0)}
+                )
+                closeTween:Play()
+                
+                closeTween.Completed:Connect(function()
+                    notification:Destroy()
+                end)
+            else
+                notification:Destroy()
+            end
+        end)
+        
+        -- Auto close after duration
+        task.delay(duration, function()
+            if notification and notification.Parent then
+                if settings.animations then
+                    local closeTween = TweenService:Create(
+                        notification,
+                        TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In),
+                        {Size = UDim2.new(1, -20, 0, 0)}
+                    )
+                    closeTween:Play()
+                    
+                    closeTween.Completed:Connect(function()
+                        notification:Destroy()
+                    end)
+                else
+                    notification:Destroy()
+                end
+            end
+        end)
+        
+        return notification
+    end
+    
+    -- Destroy UI
+    function UI:Destroy()
+        -- Animate closing
+        if settings.animations then
+            local closeTween = TweenService:Create(
+                mainFrame, 
+                TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In), 
+                {
+                    Size = UDim2.new(0, 0, 0, 0),
+                    Position = UDim2.new(0.5, 0, 0.5, 0),
+                    BackgroundTransparency = 1
+                }
+            )
+            closeTween:Play()
+            
+            closeTween.Completed:Connect(function()
+                screenGui:Destroy()
+                
+                -- Remove from UIs table
+                for i, ui in ipairs(UIs) do
+                    if ui == self then
+                        table.remove(UIs, i)
+                        break
+                    end
+                end
+            end)
+        else
+            screenGui:Destroy()
+            
+            -- Remove from UIs table
+            for i, ui in ipairs(UIs) do
+                if ui == self then
+                    table.remove(UIs, i)
+                    break
+                end
+            end
+        end
+    end
+    
+    -- Add UI to UIs table
+    table.insert(UIs, UI)
+    
+    -- Notify that the UI has loaded
+    UI:Notify(settings.title .. " Loaded", 3, "success")
+    
+    return UI
+end
+
+return VTripLibrary
