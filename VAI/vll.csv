@@ -1,0 +1,1366 @@
+Category,Vietnamese,English,RobloxCode,Description
+"Greeting","Xin chào","Hello","print(""Xin chào!"")","Basic print statement in Roblox Lua"
+"Greeting","Tạm biệt","Goodbye","script.Parent.Touched:Connect(function(hit)
+	print(""Tạm biệt!"")
+end)","Basic touched event in Roblox"
+"Question","Bạn tên là gì?","What is your name?","local playerName = player.Name
+print(""Tên của bạn là: ""..playerName)","Getting player name in Roblox"
+"Phrase","Cảm ơn bạn","Thank you","local thanksGui = script.Parent
+thanksGui.Text = ""Cảm ơn bạn!""","Setting text on a GUI element"
+"Programming","Vòng lặp","Loop","for i = 1, 10 do
+	print(""Số "" .. i)
+end","For loop in Lua"
+"Programming","Điều kiện","Conditional","if player.Team.Name == ""Đỏ"" then
+	print(""Bạn thuộc đội đỏ!"")
+else
+	print(""Bạn không thuộc đội đỏ!"")
+end","If-else statement checking player team"
+"Game","Nhân vật","Character","local character = player.Character or player.CharacterAdded:Wait()","Getting player character"
+"Game","Di chuyển","Movement","local humanoid = character:WaitForChild(""Humanoid"")
+humanoid.WalkSpeed = 20","Setting character walk speed"
+"Interface","Nút bấm","Button","local button = script.Parent
+button.MouseButton1Click:Connect(function()
+	print(""Đã nhấn nút!"")
+end)","Button click event"
+"Interface","Giao diện người dùng","User Interface","local screenGui = Instance.new(""ScreenGui"")
+local frame = Instance.new(""Frame"")
+frame.Size = UDim2.new(0.5, 0, 0.5, 0)
+frame.Position = UDim2.new(0.25, 0, 0.25, 0)
+frame.Parent = screenGui
+screenGui.Parent = player.PlayerGui","Creating a basic UI frame"
+"Game","Vật thể","Object","local part = Instance.new(""Part"")
+part.Size = Vector3.new(4, 1, 4)
+part.Position = Vector3.new(0, 10, 0)
+part.Anchored = true
+part.Parent = workspace","Creating a basic part"
+"Game","Sự kiện","Event","game.Players.PlayerAdded:Connect(function(player)
+	print(player.Name .. "" đã tham gia!"")
+end)","Player added event"
+"Programming","Hàm","Function","local function tinhTong(a, b)
+	return a + b
+end
+
+print(tinhTong(5, 3))","Creating and using a function"
+"Programming","Bảng","Table","local thuocTinh = {
+	ten = ""Kiếm"",
+	satThuong = 10,
+	doHiem = ""Hiếm""
+}
+
+print(thuocTinh.ten)","Using tables (dictionaries)"
+"Game","Va chạm","Collision","part.Touched:Connect(function(hitPart)
+	local character = hitPart.Parent
+	local humanoid = character:FindFirstChild(""Humanoid"")
+	if humanoid then
+		print(""Người chơi đã chạm vào vật thể!"")
+	end
+end)","Detecting when a player touches a part"
+"Game","Âm thanh","Sound","local sound = Instance.new(""Sound"")
+sound.SoundId = ""rbxassetid://142376088""
+sound.Volume = 0.5
+sound.Parent = workspace
+sound:Play()","Playing a sound"
+"Data","Lưu trữ","Storage","local DataStoreService = game:GetService(""DataStoreService"")
+local dataStore = DataStoreService:GetDataStore(""PlayerData"")
+
+local function saveData(player)
+	local success, errorMessage = pcall(function()
+		dataStore:SetAsync(player.UserId, {coins = 100})
+	end)
+	if not success then
+		print(""Lỗi lưu dữ liệu: "" .. errorMessage)
+	end
+end","Using DataStoreService to save data"
+"Networking","Máy chủ","Server","local ReplicatedStorage = game:GetService(""ReplicatedStorage"")
+local remoteEvent = Instance.new(""RemoteEvent"")
+remoteEvent.Name = ""ThongBao""
+remoteEvent.Parent = ReplicatedStorage
+
+remoteEvent:FireAllClients(""Xin chào từ máy chủ!"")","Creating and using RemoteEvents"
+"Networking","Máy khách","Client","local ReplicatedStorage = game:GetService(""ReplicatedStorage"")
+local remoteEvent = ReplicatedStorage:WaitForChild(""ThongBao"")
+
+remoteEvent.OnClientEvent:Connect(function(message)
+	print(""Tin nhắn từ máy chủ: "" .. message)
+end)","Receiving remote events on client"
+"Animation","Hoạt ảnh","Animation","local animationId = ""rbxassetid://507766388""
+local animation = Instance.new(""Animation"")
+animation.AnimationId = animationId
+
+local humanoid = character:WaitForChild(""Humanoid"")
+local animator = humanoid:WaitForChild(""Animator"")
+local animTrack = animator:LoadAnimation(animation)
+animTrack:Play()","Loading and playing an animation"
+"Programming","Biến","Variable","local tenNguoiChoi = ""NguyenVanA""
+local diemSo = 100
+local dangHoatDong = true","Declaring variables in Lua"
+"Programming","Toán tử","Operators","local a = 5
+local b = 10
+local tong = a + b
+local hieu = a - b
+local tich = a * b
+local thuong = a / b
+local luythua = a ^ 2
+local phandu = a % 2","Using operators in Lua"
+"Programming","Chuỗi","String","local chuoi1 = ""Xin chào ""
+local chuoi2 = ""thế giới!""
+local ketQua = chuoi1 .. chuoi2
+print(ketQua)","String concatenation in Lua"
+"Programming","Mảng","Array","local danhSachVatPham = {""Kiếm"", ""Khiên"", ""Giáp"", ""Bùa""}
+print(danhSachVatPham[1])
+print(#danhSachVatPham)","Arrays in Lua (1-indexed)"
+"Programming","Vòng lặp while","While loop","local i = 1
+while i <= 5 do
+	print(""Vòng lặp thứ "" .. i)
+	i = i + 1
+end","While loop in Lua"
+"Programming","Vòng lặp repeat","Repeat loop","local i = 1
+repeat
+	print(""Vòng lặp thứ "" .. i)
+	i = i + 1
+until i > 5","Repeat-until loop in Lua"
+"Programming","Hàm đệ quy","Recursive function","function giaiThua(n)
+	if n <= 1 then
+		return 1
+	else
+		return n * giaiThua(n-1)
+	end
+end
+
+print(giaiThua(5))","Recursive function to calculate factorial"
+"Programming","Biến toàn cục","Global variable","_G.DiemCaoNhat = 0
+
+function capNhatDiem(diemMoi)
+	if diemMoi > _G.DiemCaoNhat then
+		_G.DiemCaoNhat = diemMoi
+	end
+end","Using global variables in Lua"
+"Programming","Biến cục bộ","Local variable","function hamVidu()
+	local bienCucBo = ""Chỉ có thể truy cập trong hàm""
+	print(bienCucBo)
+end
+
+hamVidu()
+-- print(bienCucBo) -- Lỗi, không thể truy cập","Using local variables in Lua"
+"Programming","Hàm ẩn danh","Anonymous function","local nutBam = script.Parent
+nutBam.MouseButton1Click:Connect(function()
+	print(""Đã nhấn nút!"")
+end)","Using anonymous functions in Lua"
+"Programming","Xử lý lỗi","Error handling","local success, result = pcall(function()
+	return 10 / 0 -- Gây lỗi chia cho 0
+end)
+
+if success then
+	print(""Kết quả: "" .. result)
+else
+	print(""Có lỗi: "" .. result)
+end","Error handling with pcall in Lua"
+"Programming","Coroutine","Coroutine","local function demNguoc()
+	for i = 10, 1, -1 do
+		print(i)
+		wait(1)
+	end
+	print(""Hoàn thành!"")
+end
+
+spawn(demNguoc)
+print(""Tiếp tục thực hiện mã khác"")","Using coroutines in Roblox Lua"
+"Game","Teleport","Teleport","local function teleportPlayer(player, position)
+	local character = player.Character
+	if character then
+		character:SetPrimaryPartCFrame(CFrame.new(position))
+	end
+end
+
+teleportPlayer(game.Players.LocalPlayer, Vector3.new(0, 10, 0))","Teleporting a player to a position"
+"Game","Nhảy","Jump","local function makePlayerJump(player)
+	local character = player.Character
+	if character then
+		local humanoid = character:FindFirstChild(""Humanoid"")
+		if humanoid then
+			humanoid.Jump = true
+		end
+	end
+end
+
+makePlayerJump(game.Players.LocalPlayer)","Making a player jump"
+"Game","Sức khỏe","Health","local function setPlayerHealth(player, health)
+	local character = player.Character
+	if character then
+		local humanoid = character:FindFirstChild(""Humanoid"")
+		if humanoid then
+			humanoid.Health = health
+		end
+	end
+end
+
+setPlayerHealth(game.Players.LocalPlayer, 100)","Setting a player's health"
+"Game","Thiệt hại","Damage","local function damagePlayer(player, amount)
+	local character = player.Character
+	if character then
+		local humanoid = character:FindFirstChild(""Humanoid"")
+		if humanoid then
+			humanoid:TakeDamage(amount)
+		end
+	end
+end
+
+damagePlayer(game.Players.LocalPlayer, 10)","Damaging a player"
+"Game","Hồi phục","Healing","local function healPlayer(player, amount)
+	local character = player.Character
+	if character then
+		local humanoid = character:FindFirstChild(""Humanoid"")
+		if humanoid then
+			humanoid.Health = humanoid.Health + amount
+		end
+	end
+end
+
+healPlayer(game.Players.LocalPlayer, 10)","Healing a player"
+"Game","Tốc độ","Speed","local function setPlayerSpeed(player, speed)
+	local character = player.Character
+	if character then
+		local humanoid = character:FindFirstChild(""Humanoid"")
+		if humanoid then
+			humanoid.WalkSpeed = speed
+		end
+	end
+end
+
+setPlayerSpeed(game.Players.LocalPlayer, 20)","Setting a player's walk speed"
+"Game","Độ cao nhảy","Jump height","local function setJumpHeight(player, height)
+	local character = player.Character
+	if character then
+		local humanoid = character:FindFirstChild(""Humanoid"")
+		if humanoid then
+			humanoid.JumpHeight = height
+		end
+	end
+end
+
+setJumpHeight(game.Players.LocalPlayer, 7.2)","Setting a player's jump height"
+"Game","Trọng lực","Gravity","workspace.Gravity = 196.2 -- Mặc định là 196.2","Changing the game's gravity"
+"Game","Đội","Team","local Teams = game:GetService(""Teams"")
+
+local redTeam = Instance.new(""Team"")
+redTeam.Name = ""Đội Đỏ""
+redTeam.TeamColor = BrickColor.new(""Really red"")
+redTeam.Parent = Teams
+
+local blueTeam = Instance.new(""Team"")
+blueTeam.Name = ""Đội Xanh""
+blueTeam.TeamColor = BrickColor.new(""Really blue"")
+blueTeam.Parent = Teams","Creating teams in Roblox"
+"Game","Thay đổi đội","Change team","local function changeTeam(player, teamName)
+	local Teams = game:GetService(""Teams"")
+	local team = Teams:FindFirstChild(teamName)
+	if team then
+		player.Team = team
+	end
+end
+
+changeTeam(game.Players.LocalPlayer, ""Đội Đỏ"")","Changing a player's team"
+"Game","Spawn","Spawn","local function createSpawnLocation(position, teamName)
+	local spawn = Instance.new(""SpawnLocation"")
+	spawn.Position = position
+	spawn.Anchored = true
+	spawn.CanCollide = true
+	spawn.Size = Vector3.new(4, 1, 4)
+	
+	local Teams = game:GetService(""Teams"")
+	local team = Teams:FindFirstChild(teamName)
+	if team then
+		spawn.TeamColor = team.TeamColor
+	end
+	
+	spawn.Parent = workspace
+end
+
+createSpawnLocation(Vector3.new(0, 10, 0), ""Đội Đỏ"")","Creating a spawn location for a team"
+"Game","Thời gian","Time","local Lighting = game:GetService(""Lighting"")
+Lighting.ClockTime = 12 -- Giữa trưa
+-- Lighting.ClockTime = 0 -- Nửa đêm","Setting the game's time of day"
+"Game","Thời tiết","Weather","local Lighting = game:GetService(""Lighting"")
+
+-- Trời mưa
+Lighting.Ambient = Color3.fromRGB(100, 100, 100)
+Lighting.Brightness = 0.5
+Lighting.FogEnd = 200
+Lighting.FogStart = 0
+Lighting.FogColor = Color3.fromRGB(150, 150, 150)
+
+local atmosphere = Instance.new(""Atmosphere"")
+atmosphere.Density = 0.3
+atmosphere.Offset = 0.25
+atmosphere.Color = Color3.fromRGB(198, 198, 198)
+atmosphere.Decay = Color3.fromRGB(104, 112, 124)
+atmosphere.Glare = 0
+atmosphere.Haze = 0
+atmosphere.Parent = Lighting","Creating a rainy weather effect"
+"Interface","Văn bản","Text","local textLabel = Instance.new(""TextLabel"")
+textLabel.Size = UDim2.new(0, 200, 0, 50)
+textLabel.Position = UDim2.new(0.5, -100, 0.5, -25)
+textLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+textLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+textLabel.Text = ""Xin chào thế giới!""
+textLabel.Parent = script.Parent","Creating a text label"
+"Interface","Hình ảnh","Image","local imageLabel = Instance.new(""ImageLabel"")
+imageLabel.Size = UDim2.new(0, 200, 0, 200)
+imageLabel.Position = UDim2.new(0.5, -100, 0.5, -100)
+imageLabel.BackgroundTransparency = 1
+imageLabel.Image = ""rbxassetid://123456789""
+imageLabel.Parent = script.Parent","Creating an image label"
+"Interface","Khung nhập","Input","local textBox = Instance.new(""TextBox"")
+textBox.Size = UDim2.new(0, 200, 0, 30)
+textBox.Position = UDim2.new(0.5, -100, 0.5, -15)
+textBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+textBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+textBox.PlaceholderText = ""Nhập tên của bạn...""
+textBox.Text = """"
+textBox.Parent = script.Parent
+
+textBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then
+		print(""Tên đã nhập: "" .. textBox.Text)
+	end
+end)","Creating a text input box"
+"Interface","Thanh trượt","Slider","local frame = Instance.new(""Frame"")
+frame.Size = UDim2.new(0, 200, 0, 20)
+frame.Position = UDim2.new(0.5, -100, 0.5, -10)
+frame.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+frame.Parent = script.Parent
+
+local slider = Instance.new(""Frame"")
+slider.Size = UDim2.new(0, 20, 0, 20)
+slider.Position = UDim2.new(0, 0, 0, 0)
+slider.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+slider.Parent = frame
+
+local dragging = false
+local value = 0
+
+slider.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+	end
+end)
+
+slider.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+game:GetService(""UserInputService"").InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local mousePos = game:GetService(""UserInputService""):GetMouseLocation()
+		local framePos = frame.AbsolutePosition
+		local frameSize = frame.AbsoluteSize
+		
+		local relativeX = math.clamp((mousePos.X - framePos.X) / frameSize.X, 0, 1)
+		slider.Position = UDim2.new(relativeX, -10, 0, 0)
+		value = relativeX
+		print(""Giá trị: "" .. value)
+	end
+end)","Creating a slider control"
+"Interface","Danh sách","List","local scrollingFrame = Instance.new(""ScrollingFrame"")
+scrollingFrame.Size = UDim2.new(0, 200, 0, 300)
+scrollingFrame.Position = UDim2.new(0.5, -100, 0.5, -150)
+scrollingFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+scrollingFrame.Parent = script.Parent
+
+local UIListLayout = Instance.new(""UIListLayout"")
+UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.Parent = scrollingFrame
+
+local items = {""Kiếm"", ""Khiên"", ""Giáp"", ""Bùa"", ""Nhẫn"", ""Giày"", ""Mũ"", ""Áo"", ""Quần"", ""Găng tay""}
+
+for i, item in ipairs(items) do
+	local button = Instance.new(""TextButton"")
+	button.Size = UDim2.new(1, -10, 0, 30)
+	button.Text = item
+	button.Parent = scrollingFrame
+	
+	button.MouseButton1Click:Connect(function()
+		print(""Đã chọn: "" .. item)
+	end)
+end
+
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, #items * 35)","Creating a scrollable list"
+"Interface","Menu","Menu","local frame = Instance.new(""Frame"")
+frame.Size = UDim2.new(0, 200, 0, 300)
+frame.Position = UDim2.new(0.5, -100, 0.5, -150)
+frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.Visible = false
+frame.Parent = script.Parent
+
+local button = Instance.new(""TextButton"")
+button.Size = UDim2.new(0, 100, 0, 30)
+button.Position = UDim2.new(0.5, -50, 0.5, -15)
+button.Text = ""Mở Menu""
+button.Parent = script.Parent
+
+button.MouseButton1Click:Connect(function()
+	frame.Visible = not frame.Visible
+end)
+
+local closeButton = Instance.new(""TextButton"")
+closeButton.Size = UDim2.new(0, 20, 0, 20)
+closeButton.Position = UDim2.new(1, -25, 0, 5)
+closeButton.Text = ""X""
+closeButton.Parent = frame
+
+closeButton.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)","Creating a toggle menu"
+"Interface","Thông báo","Notification","local function showNotification(message, duration)
+	local notification = Instance.new(""Frame"")
+	notification.Size = UDim2.new(0, 200, 0, 50)
+	notification.Position = UDim2.new(0.5, -100, 0, -50)
+	notification.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	notification.BackgroundTransparency = 0.2
+	notification.Parent = script.Parent
+	
+	local text = Instance.new(""TextLabel"")
+	text.Size = UDim2.new(1, 0, 1, 0)
+	text.BackgroundTransparency = 1
+	text.TextColor3 = Color3.fromRGB(255, 255, 255)
+	text.Text = message
+	text.Parent = notification
+	
+	notification:TweenPosition(UDim2.new(0.5, -100, 0, 20), Enum.EasingDirection.Out, Enum.EasingStyle.Bounce, 0.5, true)
+	
+	delay(duration, function()
+		notification:TweenPosition(UDim2.new(0.5, -100, 0, -50), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.5, true, function()
+			notification:Destroy()
+		end)
+	end)
+end
+
+showNotification(""Chào mừng đến với trò chơi!"", 3)","Creating a notification system"
+"Interface","Hộp thoại","Dialog","local function showDialog(title, message, callback)
+	local dialog = Instance.new(""Frame"")
+	dialog.Size = UDim2.new(0, 300, 0, 150)
+	dialog.Position = UDim2.new(0.5, -150, 0.5, -75)
+	dialog.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	dialog.Parent = script.Parent
+	
+	local titleLabel = Instance.new(""TextLabel"")
+	titleLabel.Size = UDim2.new(1, 0, 0, 30)
+	titleLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	titleLabel.Text = title
+	titleLabel.Parent = dialog
+	
+	local messageLabel = Instance.new(""TextLabel"")
+	messageLabel.Size = UDim2.new(1, 0, 0, 70)
+	messageLabel.Position = UDim2.new(0, 0, 0, 30)
+	messageLabel.BackgroundTransparency = 1
+	messageLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+	messageLabel.Text = message
+	messageLabel.TextWrapped = true
+	messageLabel.Parent = dialog
+	
+	local yesButton = Instance.new(""TextButton"")
+	yesButton.Size = UDim2.new(0, 100, 0, 30)
+	yesButton.Position = UDim2.new(0.25, -50, 1, -40)
+	yesButton.Text = ""Đồng ý""
+	yesButton.Parent = dialog
+	
+	local noButton = Instance.new(""TextButton"")
+	noButton.Size = UDim2.new(0, 100, 0, 30)
+	noButton.Position = UDim2.new(0.75, -50, 1, -40)
+	noButton.Text = ""Hủy""
+	noButton.Parent = dialog
+	
+	yesButton.MouseButton1Click:Connect(function()
+		dialog:Destroy()
+		if callback then
+			callback(true)
+		end
+	end)
+	
+	noButton.MouseButton1Click:Connect(function()
+		dialog:Destroy()
+		if callback then
+			callback(false)
+		end
+	end)
+end
+
+showDialog(""Xác nhận"", ""Bạn có muốn tiếp tục không?"", function(result)
+	if result then
+		print(""Người dùng đã đồng ý"")
+	else
+		print(""Người dùng đã hủy"")
+	end
+end)","Creating a dialog box"
+"Interface","Hiệu ứng","Effect","local function createRippleEffect(button)
+	button.ClipsDescendants = true
+	
+	button.MouseButton1Down:Connect(function(x, y)
+		local ripple = Instance.new(""Frame"")
+		ripple.Size = UDim2.new(0, 0, 0, 0)
+		ripple.Position = UDim2.new(0, x - button.AbsolutePosition.X, 0, y - button.AbsolutePosition.Y)
+		ripple.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		ripple.BackgroundTransparency = 0.7
+		ripple.BorderSizePixel = 0
+		ripple.AnchorPoint = Vector2.new(0.5, 0.5)
+		ripple.ZIndex = button.ZIndex + 1
+		ripple.Parent = button
+		
+		local size = math.max(button.AbsoluteSize.X, button.AbsoluteSize.Y) * 2
+		
+		ripple:TweenSize(
+			UDim2.new(0, size, 0, size),
+			Enum.EasingDirection.Out,
+			Enum.EasingStyle.Quad,
+			0.5,
+			true,
+			function()
+				ripple:TweenTransparency(
+					1,
+					Enum.EasingDirection.Out,
+					Enum.EasingStyle.Quad,
+					0.5,
+					true,
+					function()
+						ripple:Destroy()
+					end
+				)
+			end
+		)
+	end)
+end
+
+local button = script.Parent
+createRippleEffect(button)","Creating a ripple effect for buttons"
+"Interface","Thanh tiến trình","Progress bar","local function createProgressBar(parent, position, size)
+	local frame = Instance.new(""Frame"")
+	frame.Size = size or UDim2.new(0, 200, 0, 20)
+	frame.Position = position or UDim2.new(0.5, -100, 0.5, -10)
+	frame.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+	frame.Parent = parent
+	
+	local fill = Instance.new(""Frame"")
+	fill.Size = UDim2.new(0, 0, 1, 0)
+	fill.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+	fill.Parent = frame
+	
+	local text = Instance.new(""TextLabel"")
+	text.Size = UDim2.new(1, 0, 1, 0)
+	text.BackgroundTransparency = 1
+	text.Text = ""0%""
+	text.Parent = frame
+	
+	local progressBar = {}
+	
+	function progressBar:SetProgress(percent)
+		percent = math.clamp(percent, 0, 100)
+		fill:TweenSize(UDim2.new(percent/100, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.2, true)
+		text.Text = math.floor(percent) .. ""%""
+	end
+	
+	return progressBar
+end
+
+local bar = createProgressBar(script.Parent)
+
+-- Ví dụ: Tăng dần từ 0% đến 100%
+for i = 0, 100, 10 do
+	bar:SetProgress(i)
+	wait(0.5)
+end","Creating a progress bar"
+"Interface","Bảng xếp hạng","Leaderboard","local function createLeaderboard(parent)
+	local frame = Instance.new(""Frame"")
+	frame.Size = UDim2.new(0, 200, 0, 300)
+	frame.Position = UDim2.new(1, -220, 0, 20)
+	frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	frame.BackgroundTransparency = 0.3
+	frame.Parent = parent
+	
+	local title = Instance.new(""TextLabel"")
+	title.Size = UDim2.new(1, 0, 0, 30)
+	title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	title.TextColor3 = Color3.fromRGB(255, 255, 255)
+	title.Text = ""Bảng xếp hạng""
+	title.Parent = frame
+	
+	local scrollingFrame = Instance.new(""ScrollingFrame"")
+	scrollingFrame.Size = UDim2.new(1, 0, 1, -30)
+	scrollingFrame.Position = UDim2.new(0, 0, 0, 30)
+	scrollingFrame.BackgroundTransparency = 1
+	scrollingFrame.Parent = frame
+	
+	local UIListLayout = Instance.new(""UIListLayout"")
+	UIListLayout.Padding = UDim.new(0, 2)
+	UIListLayout.Parent = scrollingFrame
+	
+	local leaderboard = {}
+	
+	function leaderboard:Update(data)
+		-- Xóa các mục cũ
+		for _, child in pairs(scrollingFrame:GetChildren()) do
+			if child:IsA(""Frame"") then
+				child:Destroy()
+			end
+		end
+		
+		-- Thêm các mục mới
+		for i, entry in ipairs(data) do
+			local entryFrame = Instance.new(""Frame"")
+			entryFrame.Size = UDim2.new(1, 0, 0, 25)
+			entryFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+			entryFrame.Parent = scrollingFrame
+			
+			local rankLabel = Instance.new(""TextLabel"")
+			rankLabel.Size = UDim2.new(0, 30, 1, 0)
+			rankLabel.BackgroundTransparency = 1
+			rankLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			rankLabel.Text = i
+			rankLabel.Parent = entryFrame
+			
+			local nameLabel = Instance.new(""TextLabel"")
+			nameLabel.Size = UDim2.new(0.6, 0, 1, 0)
+			nameLabel.Position = UDim2.new(0, 30, 0, 0)
+			nameLabel.BackgroundTransparency = 1
+			nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+			nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+			nameLabel.Text = entry.name
+			nameLabel.Parent = entryFrame
+			
+			local scoreLabel = Instance.new(""TextLabel"")
+			scoreLabel.Size = UDim2.new(0.4, -30, 1, 0)
+			scoreLabel.Position = UDim2.new(0.6, 0, 0, 0)
+			scoreLabel.BackgroundTransparency = 1
+			scoreLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+			scoreLabel.Text = entry.score
+			scoreLabel.Parent = entryFrame
+		end
+		
+		scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, #data * 27)
+	end
+	
+	return leaderboard
+end
+
+local leaderboard = createLeaderboard(script.Parent)
+
+-- Ví dụ dữ liệu
+local data = {
+	{name = ""NguyenVanA"", score = 1000},
+	{name = ""TranThiB"", score = 850},
+	{name = ""LeVanC"", score = 720},
+	{name = ""PhamThiD"", score = 650},
+	{name = ""HoangVanE"", score = 520},
+}
+
+leaderboard:Update(data)","Creating a leaderboard"
+"Physics","Lực","Force","local part = script.Parent
+local function applyForce()
+	local bodyForce = Instance.new(""BodyForce"")
+	bodyForce.Force = Vector3.new(0, 1000, 0) -- Lực hướng lên
+	bodyForce.Parent = part
+end
+
+applyForce()","Applying force to an object"
+"Physics","Vận tốc","Velocity","local part = script.Parent
+local function setVelocity()
+	part.Velocity = Vector3.new(0, 50, 0) -- Vận tốc hướng lên
+end
+
+setVelocity()","Setting velocity of an object"
+"Physics","Mô phỏng","Simulation","local part = script.Parent
+part.Anchored = false
+part.CanCollide = true
+part.Massless = false
+
+local attachment = Instance.new(""Attachment"")
+attachment.Parent = part
+
+local linearVelocity = Instance.new(""LinearVelocity"")
+linearVelocity.MaxForce = 1000
+linearVelocity.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
+linearVelocity.Attachment0 = attachment
+linearVelocity.VectorVelocity = Vector3.new(10, 0, 0)
+linearVelocity.Parent = part","Creating a physics simulation"
+"Physics","Khớp nối","Joint","local part1 = script.Parent
+local part2 = script.Parent.Parent.Part2
+
+local attachment1 = Instance.new(""Attachment"")
+attachment1.Parent = part1
+
+local attachment2 = Instance.new(""Attachment"")
+attachment2.Position = Vector3.new(0, 5, 0)
+attachment2.Parent = part2
+
+local springConstraint = Instance.new(""SpringConstraint"")
+springConstraint.Attachment0 = attachment1
+springConstraint.Attachment1 = attachment2
+springConstraint.FreeLength = 5
+springConstraint.Stiffness = 200
+springConstraint.Damping = 10
+springConstraint.Parent = part1","Creating a spring joint between parts"
+"Physics","Va chạm","Collision","local part = script.Parent
+
+part.Touched:Connect(function(otherPart)
+	print(""Đã va chạm với "" .. otherPart.Name)
+end)
+
+part.TouchEnded:Connect(function(otherPart)
+	print(""Đã kết thúc va chạm với "" .. otherPart.Name)
+end)","Detecting collisions between parts"
+"Physics","Trọng lực","Gravity","local part = script.Parent
+
+-- Tắt trọng lực cho vật thể
+local bodyForce = Instance.new(""BodyForce"")
+bodyForce.Force = Vector3.new(0, part:GetMass() * workspace.Gravity, 0)
+bodyForce.Parent = part","Counteracting gravity for an object"
+"Physics","Bật lên","Bounce","local part = script.Parent
+part.CustomPhysicalProperties = PhysicalProperties.new(
+	0.7, -- Density
+	0.3, -- Friction
+	0.9, -- Elasticity (độ nảy)
+	1, -- Friction weight
+	1 -- Elasticity weight
+)","Setting bounce properties for an object"
+"Physics","Ma sát","Friction","local part = script.Parent
+part.CustomPhysicalProperties = PhysicalProperties.new(
+	0.7, -- Density
+	0.9, -- Friction (ma sát cao)
+	0.3, -- Elasticity
+	1, -- Friction weight
+	1 -- Elasticity weight
+)","Setting friction properties for an object"
+"Physics","Mô phỏng vải","Cloth simulation","local function createCloth(position, size, resolution)
+	local cloth = Instance.new(""Part"")
+	cloth.Anchored = true
+	cloth.CanCollide = false
+	cloth.Transparency = 1
+	cloth.Position = position
+	cloth.Size = Vector3.new(1, 1, 1)
+	cloth.Parent = workspace
+	
+	local points = {}
+	local constraints = {}
+	
+	-- Tạo lưới các điểm
+	for x = 0, resolution do
+		points[x] = {}
+		for y = 0, resolution do
+			local point = Instance.new(""Part"")
+			point.Shape = Enum.PartType.Ball
+			point.Size = Vector3.new(0.5, 0.5, 0.5)
+			point.Position = position + Vector3.new(
+				(x / resolution - 0.5) * size.X,
+				0,
+				(y / resolution - 0.5) * size.Z
+			)
+			point.Anchored = (x == 0 or x == resolution) and (y == 0 or y == resolution)
+			point.CanCollide = false
+			point.Parent = cloth
+			
+			points[x][y] = point
+		end
+	end
+	
+	-- Tạo các ràng buộc
+	for x = 0, resolution do
+		for y = 0, resolution do
+			if x < resolution then
+				local constraint = Instance.new(""RopeConstraint"")
+				constraint.Attachment0 = createAttachment(points[x][y])
+				constraint.Attachment1 = createAttachment(points[x+1][y])
+				constraint.Length = (points[x][y].Position - points[x+1][y].Position).Magnitude
+				constraint.Parent = cloth
+				table.insert(constraints, constraint)
+			end
+			
+			if y < resolution then
+				local constraint = Instance.new(""RopeConstraint"")
+				constraint.Attachment0 = createAttachment(points[x][y])
+				constraint.Attachment1 = createAttachment(points[x][y+1])
+				constraint.Length = (points[x][y].Position - points[x][y+1].Position).Magnitude
+				constraint.Parent = cloth
+				table.insert(constraints, constraint)
+			end
+		end
+	end
+	
+	return cloth, points, constraints
+end
+
+local function createAttachment(part)
+	local attachment = Instance.new(""Attachment"")
+	attachment.Parent = part
+	return attachment
+end
+
+local cloth, points, constraints = createCloth(
+	Vector3.new(0, 10, 0),
+	Vector3.new(10, 0, 10),
+	10
+)","Creating a cloth simulation"
+"Animation","Tween","Tween","local part = script.Parent
+
+local tweenInfo = TweenInfo.new(
+	2, -- Thời gian
+	Enum.EasingStyle.Quad, -- Kiểu easing
+	Enum.EasingDirection.Out, -- Hướng easing
+	-1, -- Số lần lặp lại (-1 là vô hạn)
+	true, -- Đảo ngược
+	0 -- Độ trễ
+)
+
+local tween = game:GetService(""TweenService""):Create(
+	part,
+	tweenInfo,
+	{Position = part.Position + Vector3.new(0, 5, 0)}
+)
+
+tween:Play()","Creating a tween animation"
+"Animation","Hoạt ảnh nhân vật","Character animation","local character = script.Parent
+local humanoid = character:WaitForChild(""Humanoid"")
+local animator = humanoid:WaitForChild(""Animator"")
+
+local animation = Instance.new(""Animation"")
+animation.AnimationId = ""rbxassetid://507766388"" -- ID hoạt ảnh nhảy
+
+local animTrack = animator:LoadAnimation(animation)
+animTrack:Play()
+
+animTrack.Stopped:Connect(function()
+	print(""Hoạt ảnh đã kết thúc"")
+end)","Playing a character animation"
+"Animation","Hoạt ảnh giao diện","UI animation","local frame = script.Parent
+
+local function animateUI()
+	-- Hiệu ứng xuất hiện
+	frame.Position = UDim2.new(0.5, -100, 0, -200)
+	frame.BackgroundTransparency = 1
+	frame.Visible = true
+	
+	frame:TweenPosition(
+		UDim2.new(0.5, -100, 0.5, -100),
+		Enum.EasingDirection.Out,
+		Enum.EasingStyle.Bounce,
+		0.5,
+		true
+	)
+	
+	for i = 1, 0, -0.1 do
+		frame.BackgroundTransparency = i
+		wait(0.05)
+	end
+end
+
+animateUI()","Creating a UI animation"
+"Animation","Hoạt ảnh camera","Camera animation","local camera = workspace.CurrentCamera
+local startCFrame = camera.CFrame
+local endCFrame = CFrame.new(Vector3.new(0, 10, 0)) * CFrame.Angles(0, math.rad(180), 0)
+
+local function animateCamera()
+	local tweenInfo = TweenInfo.new(
+		2,
+		Enum.EasingStyle.Cubic,
+		Enum.EasingDirection.InOut
+	)
+	
+	local tween = game:GetService(""TweenService""):Create(
+		camera,
+		tweenInfo,
+		{CFrame = endCFrame}
+	)
+	
+	tween:Play()
+end
+
+animateCamera()","Creating a camera animation"
+"Animation","Hoạt ảnh màu sắc","Color animation","local part = script.Parent
+
+local function animateColor()
+	local tweenInfo = TweenInfo.new(
+		2,
+		Enum.EasingStyle.Linear,
+		Enum.EasingDirection.InOut,
+		-1,
+		true
+	)
+	
+	local tween = game:GetService(""TweenService""):Create(
+		part,
+		tweenInfo,
+		{Color = Color3.fromRGB(255, 0, 0)}
+	)
+	
+	tween:Play()
+end
+
+animateColor()","Creating a color animation"
+"Animation","Hoạt ảnh kích thước","Size animation","local part = script.Parent
+local originalSize = part.Size
+
+local function animateSize()
+	local tweenInfo = TweenInfo.new(
+		1,
+		Enum.EasingStyle.Elastic,
+		Enum.EasingDirection.Out,
+		-1,
+		true
+	)
+	
+	local tween = game:GetService(""TweenService""):Create(
+		part,
+		tweenInfo,
+		{Size = originalSize * 2}
+	)
+	
+	tween:Play()
+end
+
+animateSize()","Creating a size animation"
+"Animation","Hoạt ảnh trong suốt","Transparency animation","local part = script.Parent
+
+local function animateTransparency()
+	local tweenInfo = TweenInfo.new(
+		2,
+		Enum.EasingStyle.Sine,
+		Enum.EasingDirection.InOut,
+		-1,
+		true
+	)
+	
+	local tween = game:GetService(""TweenService""):Create(
+		part,
+		tweenInfo,
+		{Transparency = 1}
+	)
+	
+	tween:Play()
+end
+
+animateTransparency()","Creating a transparency animation"
+"Animation","Hoạt ảnh đường dẫn","Path animation","local part = script.Parent
+
+local points = {
+	Vector3.new(0, 5, 0),
+	Vector3.new(10, 10, 0),
+	Vector3.new(10, 10, 10),
+	Vector3.new(0, 5, 10),
+	Vector3.new(0, 5, 0)
+}
+
+local function animatePath()
+	for i = 1, #points - 1 do
+		local startPoint = points[i]
+		local endPoint = points[i+1]
+		
+		local tweenInfo = TweenInfo.new(
+			2,
+			Enum.EasingStyle.Linear,
+			Enum.EasingDirection.InOut
+		)
+		
+		local tween = game:GetService(""TweenService""):Create(
+			part,
+			tweenInfo,
+			{Position = endPoint}
+		)
+		
+		part.Position = startPoint
+		tween:Play()
+		tween.Completed:Wait()
+	end
+end
+
+while true do
+	animatePath()
+end","Creating a path animation"
+"Audio","Âm thanh","Sound","local sound = Instance.new(""Sound"")
+sound.SoundId = ""rbxassetid://142376088"" -- ID âm thanh
+sound.Volume = 0.5
+sound.Looped = false
+sound.Parent = workspace
+
+sound:Play()
+
+sound.Ended:Connect(function()
+	print(""Âm thanh đã kết thúc"")
+end)","Playing a sound"
+"Audio","Âm thanh 3D","3D sound","local sound = Instance.new(""Sound"")
+sound.SoundId = ""rbxassetid://142376088"" -- ID âm thanh
+sound.Volume = 0.5
+sound.RollOffMode = Enum.RollOffMode.LinearSquare
+sound.RollOffMaxDistance = 100
+sound.RollOffMinDistance = 10
+sound.Parent = script.Parent -- Gắn vào một Part
+
+sound:Play()","Creating a 3D sound"
+"Audio","Hiệu ứng âm thanh","Sound effect","local sound = Instance.new(""Sound"")
+sound.SoundId = ""rbxassetid://142376088"" -- ID âm thanh
+sound.Volume = 0.5
+sound.Parent = workspace
+
+local distortion = Instance.new(""DistortionSoundEffect"")
+distortion.Level = 0.5
+distortion.Parent = sound
+
+local echo = Instance.new(""EchoSoundEffect"")
+echo.Delay = 0.5
+echo.Feedback = 0.5
+echo.Parent = sound
+
+local pitch = Instance.new(""PitchShiftSoundEffect"")
+pitch.Octave = 0.5
+pitch.Parent = sound
+
+sound:Play()","Adding sound effects"
+"Audio","Âm nhạc nền","Background music","local musicService = {}
+
+function musicService:Init()
+	self.sound = Instance.new(""Sound"")
+	self.sound.SoundId = ""rbxassetid://142376088"" -- ID âm nhạc
+	self.sound.Volume = 0.3
+	self.sound.Looped = true
+	self.sound.Parent = workspace
+end
+
+function musicService:Play()
+	self.sound:Play()
+end
+
+function musicService:Stop()
+	self.sound:Stop()
+end
+
+function musicService:SetVolume(volume)
+	self.sound.Volume = volume
+end
+
+function musicService:Fade(targetVolume, duration)
+	local startVolume = self.sound.Volume
+	local startTime = tick()
+	
+	while tick() - startTime < duration do
+		local alpha = (tick() - startTime) / duration
+		self.sound.Volume = startVolume + (targetVolume - startVolume) * alpha
+		wait()
+	end
+	
+	self.sound.Volume = targetVolume
+end
+
+musicService:Init()
+musicService:Play()
+
+-- Ví dụ: Sau 10 giây, giảm dần âm lượng
+wait(10)
+musicService:Fade(0, 3)","Creating background music"
+"Audio","Âm thanh bước chân","Footstep sounds","local character = script.Parent
+local humanoid = character:WaitForChild(""Humanoid"")
+
+local footstepSounds = {
+	[Enum.Material.Grass] = ""rbxassetid://142376088"",
+	[Enum.Material.Sand] = ""rbxassetid://142376088"",
+	[Enum.Material.Concrete] = ""rbxassetid://142376088"",
+	[Enum.Material.Wood] = ""rbxassetid://142376088"",
+	[Enum.Material.Metal] = ""rbxassetid://142376088""
+}
+
+local sound = Instance.new(""Sound"")
+sound.Volume = 0.5
+sound.Parent = character.HumanoidRootPart
+
+humanoid.Running:Connect(function(speed)
+	if speed > 0.1 then
+		local raycastResult = workspace:Raycast(
+			character.HumanoidRootPart.Position,
+			Vector3.new(0, -10, 0),
+			RaycastParams.new()
+		)
+		
+		if raycastResult and raycastResult.Instance then
+			local material = raycastResult.Instance.Material
+			local soundId = footstepSounds[material] or footstepSounds[Enum.Material.Concrete]
+			
+			if soundId and not sound.IsPlaying then
+				sound.SoundId = soundId
+				sound:Play()
+			end
+		end
+	end
+end)","Creating footstep sounds"
+"Audio","Âm thanh va chạm","Collision sounds","local part = script.Parent
+
+local collisionSounds = {
+	[Enum.Material.Grass] = ""rbxassetid://142376088"",
+	[Enum.Material.Sand] = ""rbxassetid://142376088"",
+	[Enum.Material.Concrete] = ""rbxassetid://142376088"",
+	[Enum.Material.Wood] = ""rbxassetid://142376088"",
+	[Enum.Material.Metal] = ""rbxassetid://142376088""
+}
+
+local sound = Instance.new(""Sound"")
+sound.Volume = 0.5
+sound.Parent = part
+
+part.Touched:Connect(function(otherPart)
+	if otherPart.CanCollide then
+		local material = otherPart.Material
+		local soundId = collisionSounds[material] or collisionSounds[Enum.Material.Concrete]
+		
+		if soundId and not sound.IsPlaying then
+			sound.SoundId = soundId
+			sound:Play()
+		end
+	end
+end)","Creating collision sounds"
+"Data","Lưu dữ liệu","Save data","local DataStoreService = game:GetService(""DataStoreService"")
+local playerData = DataStoreService:GetDataStore(""PlayerData"")
+
+local function saveData(player)
+	local data = {
+		coins = 100,
+		level = 5,
+		items = {""sword"", ""shield"", ""potion""}
+	}
+	
+	local success, errorMessage = pcall(function()
+		playerData:SetAsync(player.UserId, data)
+	end)
+	
+	if success then
+		print(""Đã lưu dữ liệu cho "" .. player.Name)
+	else
+		print(""Lỗi khi lưu dữ liệu: "" .. errorMessage)
+	end
+end
+
+local function loadData(player)
+	local success, data = pcall(function()
+		return playerData:GetAsync(player.UserId)
+	end)
+	
+	if success and data then
+		print(""Đã tải dữ liệu cho "" .. player.Name)
+		return data
+	else
+		print(""Không tìm thấy dữ liệu hoặc có lỗi"")
+		return {
+			coins = 0,
+			level = 1,
+			items = {}
+		}
+	end
+end
+
+game.Players.PlayerAdded:Connect(function(player)
+	local data = loadData(player)
+	-- Sử dụng dữ liệu
+end)
+
+game.Players.PlayerRemoving:Connect(function(player)
+	saveData(player)
+end)","Saving and loading player data"
+"Data","Bảng dữ liệu","Data table","local itemDatabase = {
+	[""sword""] = {
+		name = ""Kiếm sắt"",
+		damage = 10,
+		durability = 100,
+		rarity = ""Common"",
+		description = ""Một thanh kiếm sắt cơ bản""
+	},
+	[""fire_sword""] = {
+		name = ""Kiếm lửa"",
+		damage = 20,
+		durability = 150,
+		rarity = ""Rare"",
+		description = ""Thanh kiếm được tôi luyện trong lửa""
+	},
+	[""ice_sword""] = {
+		name = ""Kiếm băng"",
+		damage = 15,
+		durability = 120,
+		rarity = ""Uncommon"",
+		description = ""Thanh kiếm có khả năng làm đóng băng kẻ địch""
+	}
+}
+
+local function getItemInfo(itemId)
+	return itemDatabase[itemId]
+end
+
+local itemInfo = getItemInfo(""fire_sword"")
+if itemInfo then
+	print(""Tên: "" .. itemInfo.name)
+	print(""Sát thương: "" .. itemInfo.damage)
+	print(""Độ bền: "" .. itemInfo.durability)
+	print(""Độ hiếm: "" .. itemInfo.rarity)
+	print(""Mô tả: "" .. itemInfo.description)
+end","Creating a data table for items"
+"Data","Hệ thống tiền tệ","Currency system","local currencyService = {}
+
+function currencyService:Init()
+	self.DataStoreService = game:GetService(""DataStoreService"")
+	self.currencyStore = self.DataStoreService:GetDataStore(""PlayerCurrency"")
+	self.cache = {}
+end
+
+function currencyService:GetCoins(player)
+	if self.cache[player.UserId] then
+		return self.cache[player.UserId]
+	end
+	
+	local success, coins = pcall(function()
+		return self.currencyStore:GetAsync(player.UserId) or 0
+	end)
+	
+	if success then
+		self.cache[player.UserId] = coins
+		return coins
+	else
+		return 0
+	end
+end
+
+function currencyService:AddCoins(player, amount)
+	local currentCoins = self:GetCoins(player)
+	local newCoins = currentCoins + amount
+	
+	self.cache[player.UserId] = newCoins
+	
+	-- Lưu vào DataStore
+	spawn(function()
+		local success, errorMessage = pcall(function()
+			self.currencyStore:SetAsync(player.UserId, newCoins)
+		end)
+		
+		if not success then
+			print(""Lỗi khi lưu tiền: "" .. errorMessage)
+		end
+	end)
+	
+	return newCoins
+end
+
+function currencyService:RemoveCoins(player, amount)
+	local currentCoins = self:GetCoins(player)
+	local newCoins = math.max(0, currentCoins - amount)
+	
+	self.cache[player.UserId] = newCoins
+	
+	-- Lưu vào DataStore
+	spawn(function()
+		local success, errorMessage = pcall(function()
+			self.currencyStore:SetAsync(player.UserId, newCoins)
+		end)
+		
+		if not success then
+			print(""Lỗi khi lưu tiền: "" .. errorMessage)
+		end
+	end)
+	
+	return newCoins
+end
+
+currencyService:Init()
+
+-- Ví dụ sử dụng
+game.Players.PlayerAdded:Connect(function(player)
+	local coins = currencyService:GetCoins(player)
+	print(player.Name .. "" có "" .. coins .. "" xu"")
+end)","Creating a currency system"
+"Data","Hệ thống kinh nghiệm","Experience system","local experienceService = {}
+
+function experienceService:Init()
+	self.DataStoreService = game:GetService(""DataStoreService"")
+	self.experienceStore = self.DataStoreService:GetDataStore(""PlayerExperience"")
+	self.cache = {}
+	
+	-- Cấu hình cấp độ
+	self.levelConfig = {}
+	for i = 1, 100 do
+		self.levelConfig[i] = 100 * i * i -- Công thức tính XP cần cho mỗi cấp
+	end
+end
+
+function experienceService:GetData(player)
+	if self.cache[player.UserId] then
+		return self.cache[player.UserId]
+	end
+	
+	local success, data = pcall(function()
+		return self.experienceStore:GetAsync(player.UserId) or {level = 1, xp = 0}
+	end)
+	
+	if success then
+		self.cache[player.UserId] = data
+		return data
+	else
+		return {level = 1, xp = 0}
+	end
+end
+
+function experienceService:AddExperience(player, amount)
+	local data = self:GetData(player)
+	local currentLevel = data.level
+	local currentXP = data.xp
+	
+	-- Thêm XP
+	currentXP = currentXP + amount
+	
+	-- Kiểm tra lên cấp
+	while currentLevel < #self.levelConfig and currentXP >= self.levelConfig[currentLevel] do
+		currentXP = currentXP - self.levelConfig[currentLevel]
+		currentLevel = currentLevel + 1
+		
+		-- Thông báo lên cấp
+		self:OnLevelUp(player, currentLevel)
+	end
+	
+	-- Cập nhật dữ liệu
+	data.level = currentLevel
+	data.xp = currentXP
+	self.cache[player.UserId] = data
+	
+	-- Lưu vào DataStore
+	spawn(function()
+		local success, errorMessage = pcall(function()
+			self.experienceStore:SetAsync(player.UserId, data)
+		end)
+		
+		if not success then
+			print(""Lỗi khi lưu XP: "" .. errorMessage)
+		end
+	end)
+	
+	return data
+end
+
+function experienceService:OnLevelUp(player, newLevel)
+	print(player.Name .. "" đã lên cấp "" .. newLevel .. ""!"")
+	-- Thêm phần thưởng lên cấp ở đây
+end
+
+function experienceService:GetLevel(player)
+	local data = self:GetData(player)
+	return data.level
+end
+
+function experienceService:GetXP(player)
+	local data = self:GetData(player)
+	return data.xp
+end
+
+function experienceService:GetXPForNextLevel(player)
+	local data = self:GetData(player)
+	return self.levelConfig[data.level]
+end
+
+experienceService:Init()
+
+-- Ví dụ sử dụng
+game.Players.PlayerAdded:Connect(function(player)
+	local data = experienceService:GetData(player)
+	print(player.Name .. "" đang ở cấp "" .. data.level .. "" với "" .. data.xp .. "" XP"")
+end)","Creating an experience system"
